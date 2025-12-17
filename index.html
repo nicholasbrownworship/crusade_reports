@@ -40,7 +40,7 @@
       overflow-x:hidden;
     }
 
-    .wrap{ max-width: 1100px; margin: 0 auto; padding: 28px 18px 60px; }
+    .wrap{ max-width: 1120px; margin: 0 auto; padding: 28px 18px 60px; }
 
     header{
       display:flex;
@@ -63,7 +63,7 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.4;
-      max-width: 78ch;
+      max-width: 84ch;
     }
 
     .panel{
@@ -76,7 +76,7 @@
 
     .controls{
       display:grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      grid-template-columns: 0.8fr 0.9fr 0.9fr 1.2fr 1.2fr auto;
       gap:10px;
       padding: 14px;
       background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
@@ -87,7 +87,7 @@
       display:flex;
       flex-direction:column;
       gap:6px;
-      min-width: 160px;
+      min-width: 140px;
     }
 
     label{
@@ -97,7 +97,7 @@
       letter-spacing: 0.9px;
     }
 
-    select, input[type="number"], input[type="text"]{
+    select, input[type="number"], input[type="text"], input[type="password"]{
       background: rgba(255,255,255,0.04);
       color: var(--ink);
       border: 1px solid rgba(209,161,75,0.18);
@@ -156,7 +156,7 @@
       padding: 14px;
     }
 
-    @media (max-width: 980px){
+    @media (max-width: 1020px){
       .controls{ grid-template-columns: 1fr 1fr; }
       .grid{ grid-template-columns: 1fr; }
     }
@@ -243,11 +243,11 @@
 
     .actions{ display:flex; gap:8px; flex-wrap:wrap; }
 
-    .rightcol .card{ height: 100%; }
-
     .stack{ display:flex; flex-direction:column; gap:10px; }
 
     .small{ font-size: 12px; color: var(--muted); line-height:1.45; }
+    .small.warn{ color: #ffd38a; }
+    .small.err{ color: var(--red); }
 
     .history{
       margin-top: 10px;
@@ -302,7 +302,7 @@
       pointer-events:none;
       transition: opacity .16s ease, transform .16s ease;
       font-size: 12px;
-      max-width: min(680px, calc(100vw - 26px));
+      max-width: min(780px, calc(100vw - 26px));
     }
     .toast.show{
       opacity:1;
@@ -326,11 +326,11 @@
       <div class="title">
         <h1>Crusade Intelligence Briefings (GM)</h1>
         <div class="sub">
-          Use this as your switcher. Open <span class="kbd">viewer.html</span> on the projector.
-          Pins/status updates publish live to the viewer tab.
-          Hotkeys: <span class="kbd">D</span> draw, <span class="kbd">C</span> copy.
+          GM “switcher” page. Open <span class="kbd">viewer.html</span> on the projector/phones.
+          This page publishes pinned intel to your Apps Script backend. Hotkeys: <span class="kbd">D</span> draw, <span class="kbd">C</span> copy.
         </div>
       </div>
+      <div class="pill" id="netPill">Backend: Booting…</div>
     </header>
 
     <section class="panel">
@@ -356,15 +356,20 @@
         </div>
 
         <div class="field">
-          <label for="viewerSubtitle">Viewer Subtitle</label>
-          <input id="viewerSubtitle" type="text" placeholder="Optional line shown on projector…" />
+          <label for="room">Room</label>
+          <input id="room" type="text" placeholder="default" />
+        </div>
+
+        <div class="field">
+          <label for="gmKey">GM Key</label>
+          <input id="gmKey" type="password" placeholder="(stored locally in your browser)" />
         </div>
 
         <div class="btnrow">
           <button class="primary" id="drawBtn">Draw Briefing</button>
           <button id="copyBtn">Copy Briefing</button>
-          <button id="pushBtn" title="Force-push current pinned board to viewer">Push to Viewer</button>
-          <button class="danger" id="resetBtn">Reset Local State</button>
+          <button id="pushBtn" title="Publish pinned/status to viewer">Publish</button>
+          <button class="danger" id="resetBtn">Reset Local</button>
         </div>
       </div>
 
@@ -372,6 +377,16 @@
         <div class="leftcol stack">
           <div class="card">
             <div class="small" id="deckStatus">Loading deck…</div>
+            <div class="small" id="remoteStatus" style="margin-top:6px;">Loading backend state…</div>
+            <div class="small warn" style="margin-top:8px;">
+              Tip: Don’t hardcode the GM key into the file. Keep it in this input only.
+            </div>
+          </div>
+
+          <div class="card">
+            <label for="viewerSubtitle" style="display:block;margin-bottom:6px;">Viewer Subtitle</label>
+            <input id="viewerSubtitle" type="text" placeholder="Optional line shown on viewer..." />
+            <div class="small" style="margin-top:8px;">Example: “Campaign Turn 4 — Vox traffic unstable.”</div>
           </div>
 
           <div id="drawArea" class="stack"></div>
@@ -379,14 +394,14 @@
 
         <div class="rightcol stack">
           <div class="card">
-            <h3 class="ctitle" style="margin:0 0 6px;">Pinned / Status Board</h3>
-            <div class="small">This is what the Viewer page shows (projector feed). Status + notes persist locally.</div>
+            <h3 class="ctitle" style="margin:0 0 6px;">Pinned / Status Board (Published)</h3>
+            <div class="small">This is what players see on <span class="kbd">viewer.html</span>. Use Focus to spotlight one card.</div>
             <div class="history" id="statusBoard"></div>
           </div>
 
           <div class="card">
             <h3 class="ctitle" style="margin:0 0 6px;">Draw History</h3>
-            <div class="small">A quick log of what you drew recently.</div>
+            <div class="small">Quick log (local).</div>
             <div class="history" id="history"></div>
           </div>
         </div>
@@ -398,42 +413,75 @@
 
 <script>
 (() => {
+  // ===== CONFIG =====
+  const APPS_SCRIPT_BASE =
+    "https://script.google.com/macros/s/AKfycbwKW6HJ2DkpxoAqLgwA5AeeA9_GvlBq7Fc8svttiLyML14wRUDuI5KAH7iQO4ns0hds/exec";
+
   const DECK_URL = "./briefing_deck.json";
 
   const LS = {
     seen: "crusadeIntel_seen_v1",
     history: "crusadeIntel_history_v1",
-    statuses: "crusadeIntel_statuses_v1", // { [cardId]: { status, note, updatedAt } }
 
-    // Published program feed for viewer.html
-    viewerState: "crusadeIntel_viewer_state_v1",
-    viewerSubtitle: "crusadeIntel_viewer_subtitle_v1"
+    // We keep a local cache of the last *published* state (so GM UI shows it even if backend is down)
+    publishedCache: "crusadeIntel_published_cache_v1",
+
+    // Store these locally so you don't retype every time
+    room: "crusadeIntel_room_v1",
+    gmKey: "crusadeIntel_gmkey_v1",
+    subtitle: "crusadeIntel_subtitle_v1"
   };
 
-  const CHANNEL_NAME = "crusadeIntel_channel_v1";
-  const bc = ("BroadcastChannel" in window) ? new BroadcastChannel(CHANNEL_NAME) : null;
-
   const els = {
+    netPill: document.getElementById("netPill"),
+    deckStatus: document.getElementById("deckStatus"),
+    remoteStatus: document.getElementById("remoteStatus"),
+
     count: document.getElementById("count"),
     category: document.getElementById("category"),
     mode: document.getElementById("mode"),
+    room: document.getElementById("room"),
+    gmKey: document.getElementById("gmKey"),
     viewerSubtitle: document.getElementById("viewerSubtitle"),
+
     drawBtn: document.getElementById("drawBtn"),
     copyBtn: document.getElementById("copyBtn"),
     pushBtn: document.getElementById("pushBtn"),
     resetBtn: document.getElementById("resetBtn"),
+
     drawArea: document.getElementById("drawArea"),
-    deckStatus: document.getElementById("deckStatus"),
-    history: document.getElementById("history"),
     statusBoard: document.getElementById("statusBoard"),
+    history: document.getElementById("history"),
     toast: document.getElementById("toast")
   };
 
   let DECK = null;
   let lastDraw = [];
-  let focusCardId = "";
 
-  const nowStamp = () => new Date().toLocaleString();
+  // Published/shared state (the actual program feed)
+  let publishedState = {
+    updatedAt: 0,
+    subtitle: "",
+    pinned: [],
+    focusCardId: ""
+  };
+
+  // ===== helpers =====
+  function escapeHtml(str){
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function toast(msg){
+    els.toast.textContent = msg;
+    els.toast.classList.add("show");
+    window.clearTimeout(toast._t);
+    toast._t = window.setTimeout(() => els.toast.classList.remove("show"), 1400);
+  }
 
   function loadLS(key, fallback){
     try{
@@ -448,13 +496,6 @@
     localStorage.setItem(key, JSON.stringify(val));
   }
 
-  function toast(msg){
-    els.toast.textContent = msg;
-    els.toast.classList.add("show");
-    window.clearTimeout(toast._t);
-    toast._t = window.setTimeout(() => els.toast.classList.remove("show"), 1400);
-  }
-
   function confidenceDotClass(conf){
     const c = (conf || "").toLowerCase();
     if(c.includes("high")) return "high";
@@ -467,7 +508,7 @@
       case "ongoing": return "Ongoing";
       case "resolved": return "Resolved";
       case "false": return "Misinformation";
-      default: return "Unmarked";
+      default: return "Pinned";
     }
   }
 
@@ -520,6 +561,43 @@
     return out;
   }
 
+  function apiGetUrl(){
+    const room = (els.room.value || "default").trim() || "default";
+    return `${APPS_SCRIPT_BASE}?room=${encodeURIComponent(room)}`;
+  }
+
+  async function apiGetState(){
+    const res = await fetch(apiGetUrl(), { cache: "no-store" });
+    if(!res.ok) throw new Error(`Backend GET failed (${res.status})`);
+    const data = await res.json();
+    if(!data || data.ok !== true) throw new Error(data?.error || "Backend ok:false");
+    return data.state;
+  }
+
+  async function apiPostState(state){
+    const room = (els.room.value || "default").trim() || "default";
+    const key = (els.gmKey.value || "").trim();
+
+    if(!key){
+      throw new Error("GM Key is blank. Enter it to publish.");
+    }
+
+    const payload = { room, key, state };
+
+    const res = await fetch(APPS_SCRIPT_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+
+    // Apps Script often returns 200 even on logical error, so inspect JSON
+    const data = await res.json().catch(() => null);
+    if(!data || data.ok !== true){
+      throw new Error(data?.error || `Publish failed (${res.status}).`);
+    }
+    return data.state; // should include updatedAt (server-stamped too)
+  }
+
   function renderDraw(cards){
     els.drawArea.innerHTML = "";
     if(!cards.length){
@@ -527,14 +605,14 @@
       return;
     }
     for(const c of cards){
-      els.drawArea.appendChild(makeCardEl(c));
+      els.drawArea.appendChild(makeDrawCardEl(c));
     }
   }
 
-  function makeCardEl(c){
-    const statuses = loadLS(LS.statuses, {});
-    const s = statuses[c.id]?.status || "";
-    const note = statuses[c.id]?.note || "";
+  function makeDrawCardEl(c){
+    const published = publishedState.pinned.find(p => p.card_id === c.id);
+    const currentStatus = published?.status || "";
+    const currentNote = published?.note || "";
 
     const wrap = document.createElement("div");
     wrap.className = "card";
@@ -550,7 +628,7 @@
           </div>
           <h3 class="ctitle">${escapeHtml(c.title)}</h3>
         </div>
-        <div class="pill" title="Current status">${statusLabel(s)}</div>
+        <div class="pill">${escapeHtml(statusLabel(currentStatus || "pinned"))}</div>
       </div>
 
       <p class="ctext">${escapeHtml(c.text)}</p>
@@ -558,7 +636,7 @@
       <div class="meta">
         <div class="left">
           ${(c.tone || []).slice(0,4).map(t => `<span class="pill">#${escapeHtml(t)}</span>`).join("")}
-          ${note ? `<span class="pill" title="GM note">🗒 ${escapeHtml(note)}</span>` : ``}
+          ${currentNote ? `<span class="pill" title="GM note">🗒 ${escapeHtml(currentNote)}</span>` : ``}
         </div>
         <div class="actions">
           <button data-act="pin">Pin</button>
@@ -567,118 +645,139 @@
           <button data-act="false">Misinformation</button>
           <button data-act="note">Add Note</button>
           <button data-act="focus">Focus</button>
+          <button data-act="unpin">Unpin</button>
         </div>
       </div>
     `;
 
     wrap.querySelectorAll("button").forEach(btn => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const act = btn.getAttribute("data-act");
-        if(act === "pin"){
-          setStatus(c.id, "ongoing", note || "");
-          focusCardId = c.id;
-          publishViewerState();
-          toast("Pinned as Ongoing + focused on Viewer.");
-          renderStatusBoard();
-          renderDraw(lastDraw);
-          return;
-        }
         if(act === "note"){
-          const current = loadLS(LS.statuses, {})[c.id]?.note || "";
+          const current = publishedState.pinned.find(p => p.card_id === c.id)?.note || "";
           const next = prompt("GM note (short):", current);
           if(next === null) return;
-          const st = loadLS(LS.statuses, {})[c.id]?.status || "";
-          setStatus(c.id, st, next.trim());
-          publishViewerState();
-          toast("Note saved + pushed to Viewer.");
-          renderDraw(lastDraw);
+          upsertPinned(c.id, currentStatus || "ongoing", next.trim());
+          publishedState.focusCardId = c.id;
+          await safePublish("Note saved + published.");
           renderStatusBoard();
-          return;
-        }
-        if(act === "focus"){
-          focusCardId = c.id;
-          publishViewerState();
-          toast("Focused on Viewer.");
+          renderDraw(lastDraw);
           return;
         }
 
-        setStatus(c.id, act, note);
-        focusCardId = c.id;
-        publishViewerState();
-        toast(`Marked: ${statusLabel(act)} + focused on Viewer.`);
-        renderDraw(lastDraw);
+        if(act === "focus"){
+          // focus does not require pin, but it only really matters if pinned exists
+          publishedState.focusCardId = c.id;
+          if(!publishedState.pinned.some(p => p.card_id === c.id)){
+            upsertPinned(c.id, "ongoing", "");
+          }
+          await safePublish("Focused + published.");
+          renderStatusBoard();
+          renderDraw(lastDraw);
+          return;
+        }
+
+        if(act === "unpin"){
+          publishedState.pinned = publishedState.pinned.filter(p => p.card_id !== c.id);
+          if(publishedState.focusCardId === c.id) publishedState.focusCardId = "";
+          await safePublish("Unpinned + published.");
+          renderStatusBoard();
+          renderDraw(lastDraw);
+          return;
+        }
+
+        // pin/status
+        const status = (act === "pin") ? "ongoing" : act;
+        upsertPinned(c.id, status, currentNote || "");
+        publishedState.focusCardId = c.id;
+        await safePublish(`${statusLabel(status)} + published.`);
         renderStatusBoard();
+        renderDraw(lastDraw);
       });
     });
 
     return wrap;
   }
 
-  function setStatus(cardId, status, note){
-    const statuses = loadLS(LS.statuses, {});
-    statuses[cardId] = {
-      status: status || "",
-      note: (note || "").slice(0, 160),
-      updatedAt: Date.now()
+  function upsertPinned(cardId, status, note){
+    const idx = publishedState.pinned.findIndex(p => p.card_id === cardId);
+    const entry = {
+      card_id: cardId,
+      status: status || "ongoing",
+      note: (note || "").slice(0, 200)
     };
-    saveLS(LS.statuses, statuses);
-  }
-
-  function clearStatus(cardId){
-    const statuses = loadLS(LS.statuses, {});
-    delete statuses[cardId];
-    saveLS(LS.statuses, statuses);
+    if(idx === -1) publishedState.pinned.unshift(entry);
+    else publishedState.pinned[idx] = entry;
   }
 
   function renderStatusBoard(){
-    const statuses = loadLS(LS.statuses, {});
-    const items = Object.entries(statuses)
-      .map(([id, v]) => ({ id, ...v }))
-      .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
-
     els.statusBoard.innerHTML = "";
-    if(items.length === 0){
-      els.statusBoard.innerHTML = `<div class="small">No pinned/status items yet. Mark a card as Ongoing/Resolved/Misinformation.</div>`;
+    const pinned = publishedState.pinned || [];
+    if(pinned.length === 0){
+      els.statusBoard.innerHTML = `<div class="small">No pinned intel published yet.</div>`;
       return;
     }
 
-    for(const it of items){
-      const card = (DECK?.cards || []).find(c => c.id === it.id);
+    for(const p of pinned){
+      const card = (DECK?.cards || []).find(c => c.id === p.card_id);
       if(!card) continue;
+
+      const isFocus = publishedState.focusCardId === p.card_id;
 
       const el = document.createElement("div");
       el.className = "hitem";
       el.innerHTML = `
         <div class="top">
-          <b>${escapeHtml(card.title)}</b>
-          <span class="time">${new Date(it.updatedAt).toLocaleDateString()}</span>
+          <b>${escapeHtml(card.title)}${isFocus ? " • (FOCUS)" : ""}</b>
+          <span class="time">${escapeHtml(card.category)}</span>
         </div>
         <div class="desc">
-          <span class="pill">${statusLabel(it.status)}</span>
-          <span style="opacity:.6">•</span>
-          ${escapeHtml(card.category)}
-          ${it.note ? `<div style="margin-top:6px; color: var(--muted);">${escapeHtml(it.note)}</div>` : ``}
+          <span class="pill">${escapeHtml(statusLabel(p.status))}</span>
+          ${p.note ? `<div style="margin-top:6px; color: var(--muted);">${escapeHtml(p.note)}</div>` : ``}
           <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-            <button data-sb="focus">Focus (Viewer)</button>
-            <button data-sb="clear">Clear</button>
+            <button data-sb="focus">Focus</button>
+            <button data-sb="up">Move Up</button>
+            <button data-sb="down">Move Down</button>
+            <button data-sb="remove">Remove</button>
           </div>
         </div>
       `;
 
-      el.querySelector('[data-sb="focus"]').addEventListener("click", () => {
-        focusCardId = card.id;
-        lastDraw = [card];
+      el.querySelector('[data-sb="focus"]').addEventListener("click", async () => {
+        publishedState.focusCardId = p.card_id;
+        await safePublish("Focused + published.");
+        renderStatusBoard();
         renderDraw(lastDraw);
-        publishViewerState();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        toast("Focused on Viewer.");
       });
 
-      el.querySelector('[data-sb="clear"]').addEventListener("click", () => {
-        clearStatus(it.id);
-        publishViewerState();
+      el.querySelector('[data-sb="remove"]').addEventListener("click", async () => {
+        publishedState.pinned = publishedState.pinned.filter(x => x.card_id !== p.card_id);
+        if(publishedState.focusCardId === p.card_id) publishedState.focusCardId = "";
+        await safePublish("Removed + published.");
         renderStatusBoard();
-        toast("Cleared status + pushed to Viewer.");
+        renderDraw(lastDraw);
+      });
+
+      el.querySelector('[data-sb="up"]').addEventListener("click", async () => {
+        const i = publishedState.pinned.findIndex(x => x.card_id === p.card_id);
+        if(i > 0){
+          const tmp = publishedState.pinned[i-1];
+          publishedState.pinned[i-1] = publishedState.pinned[i];
+          publishedState.pinned[i] = tmp;
+          await safePublish("Reordered + published.");
+          renderStatusBoard();
+        }
+      });
+
+      el.querySelector('[data-sb="down"]').addEventListener("click", async () => {
+        const i = publishedState.pinned.findIndex(x => x.card_id === p.card_id);
+        if(i !== -1 && i < publishedState.pinned.length - 1){
+          const tmp = publishedState.pinned[i+1];
+          publishedState.pinned[i+1] = publishedState.pinned[i];
+          publishedState.pinned[i] = tmp;
+          await safePublish("Reordered + published.");
+          renderStatusBoard();
+        }
       });
 
       els.statusBoard.appendChild(el);
@@ -709,13 +808,14 @@
 
   function appendHistory(drawn){
     const hist = loadLS(LS.history, []);
+    const stamp = new Date().toLocaleString();
     for(const c of drawn){
       hist.unshift({
         id: c.id,
         title: c.title,
         category: c.category,
         confidence: c.confidence,
-        time: nowStamp()
+        time: stamp
       });
     }
     saveLS(LS.history, hist.slice(0, 120));
@@ -734,150 +834,168 @@
     return `Deck loaded: ${total} cards • Filter: ${catText} • In cycle: ${poolUnseen} unseen / ${pool.length} total (Unique mode)`;
   }
 
-  function escapeHtml(str){
-    return String(str ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
+  function setNet(ok, msg){
+    els.netPill.textContent = ok ? `Backend: Online` : `Backend: Offline`;
+    els.netPill.style.borderColor = ok ? "rgba(63,191,127,0.35)" : "rgba(204,59,59,0.35)";
+    els.netPill.style.background = ok ? "rgba(63,191,127,0.10)" : "rgba(204,59,59,0.10)";
+    if(msg) els.remoteStatus.textContent = msg;
   }
 
-  function computePinnedForViewer(){
-    const statuses = loadLS(LS.statuses, {});
-    const entries = Object.entries(statuses)
-      .map(([card_id, v]) => ({ card_id, ...v }))
-      .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+  async function safePublish(successMsg){
+    // keep subtitle in state + local
+    publishedState.subtitle = els.viewerSubtitle.value.trim();
+    saveLS(LS.subtitle, publishedState.subtitle);
 
-    // only include things that are actually "marked" (pinning creates ongoing)
-    return entries.map(e => ({
-      card_id: e.card_id,
-      status: e.status || "ongoing",
-      note: e.note || ""
-    }));
-  }
-
-  function publishViewerState(){
-    const subtitle = els.viewerSubtitle.value.trim();
-    localStorage.setItem(LS.viewerSubtitle, subtitle);
-
-    const state = {
-      updatedAt: Date.now(),
-      subtitle,
-      pinned: computePinnedForViewer(),
-      focusCardId: focusCardId || ""
-    };
-
-    saveLS(LS.viewerState, state);
-    if(bc){
-      bc.postMessage({ type: "viewer_state", state });
+    try{
+      setNet(true, "Publishing…");
+      const saved = await apiPostState(publishedState);
+      publishedState = normalizeState(saved);
+      saveLS(LS.publishedCache, publishedState);
+      setNet(true, `Published • Updated: ${new Date(publishedState.updatedAt || Date.now()).toLocaleString()}`);
+      toast(successMsg || "Published.");
+    }catch(err){
+      setNet(false, `Publish failed: ${err.message || String(err)}`);
+      toast("Publish failed (see status).");
+      // still keep local cache updated so you don't lose work
+      saveLS(LS.publishedCache, publishedState);
     }
   }
 
-  async function init(){
-    // restore viewer subtitle
-    try{
-      const savedSub = localStorage.getItem(LS.viewerSubtitle);
-      if(savedSub) els.viewerSubtitle.value = savedSub;
-    }catch(e){}
+  function normalizeState(s){
+    const out = {
+      updatedAt: Number(s?.updatedAt || 0),
+      subtitle: String(s?.subtitle || ""),
+      focusCardId: String(s?.focusCardId || ""),
+      pinned: Array.isArray(s?.pinned) ? s.pinned.map(p => ({
+        card_id: String(p.card_id || ""),
+        status: String(p.status || "ongoing"),
+        note: String(p.note || "")
+      })).filter(p => p.card_id) : []
+    };
+    return out;
+  }
 
+  // ===== init =====
+  async function init(){
+    // restore local settings
+    els.room.value = (localStorage.getItem(LS.room) || "default").replaceAll('"','') || "default";
+    els.viewerSubtitle.value = (localStorage.getItem(LS.subtitle) || "").replaceAll('"','') || "";
+    // GM key stored as plain string in LS; do not commit to repo
+    const savedKey = localStorage.getItem(LS.gmKey);
+    if(savedKey) els.gmKey.value = savedKey.replaceAll('"','');
+
+    els.room.addEventListener("input", () => localStorage.setItem(LS.room, els.room.value.trim() || "default"));
+    els.gmKey.addEventListener("input", () => localStorage.setItem(LS.gmKey, els.gmKey.value));
     els.viewerSubtitle.addEventListener("input", () => {
-      publishViewerState();
+      localStorage.setItem(LS.subtitle, els.viewerSubtitle.value);
     });
 
+    // Load deck
     try{
       const res = await fetch(DECK_URL, { cache: "no-store" });
       if(!res.ok) throw new Error(`Failed to load ${DECK_URL} (${res.status})`);
       DECK = await res.json();
       ensureCategoryOptions(DECK.cards);
-
       els.deckStatus.textContent = deckStatusLine();
-      renderHistory();
-      renderStatusBoard();
-      publishViewerState(); // publish whatever you currently have
-
-      els.category.addEventListener("change", () => {
-        els.deckStatus.textContent = deckStatusLine();
-      });
-
-      els.drawBtn.addEventListener("click", () => {
-        const count = Math.max(1, Math.min(8, parseInt(els.count.value || "3", 10)));
-        els.count.value = String(count);
-
-        const mode = els.mode.value;
-        lastDraw = drawCards(DECK.cards, count, mode);
-        renderDraw(lastDraw);
-        appendHistory(lastDraw);
-        els.deckStatus.textContent = deckStatusLine();
-        toast(`Drew ${lastDraw.length} card(s).`);
-      });
-
-      els.copyBtn.addEventListener("click", async () => {
-        if(!lastDraw.length){
-          toast("Nothing to copy yet. Draw first.");
-          return;
-        }
-        const lines = [];
-        lines.push("CRUSADE INTELLIGENCE BRIEFING");
-        lines.push(`Generated: ${nowStamp()}`);
-        lines.push("");
-
-        for(const c of lastDraw){
-          lines.push(`[${c.category}] ${c.title} (${c.confidence || "Low"} Confidence)`);
-          lines.push(c.text);
-          lines.push("");
-        }
-
-        const txt = lines.join("\n");
-        try{
-          await navigator.clipboard.writeText(txt);
-          toast("Briefing copied to clipboard.");
-        }catch(e){
-          toast("Clipboard blocked. Select + copy manually.");
-          prompt("Copy briefing:", txt);
-        }
-      });
-
-      els.pushBtn.addEventListener("click", () => {
-        publishViewerState();
-        toast("Pushed to Viewer.");
-      });
-
-      els.resetBtn.addEventListener("click", () => {
-        if(!confirm("Reset local state? This clears seen-cycle, history, and statuses for this browser.")) return;
-        localStorage.removeItem(LS.seen);
-        localStorage.removeItem(LS.history);
-        localStorage.removeItem(LS.statuses);
-        localStorage.removeItem(LS.viewerState);
-        lastDraw = [];
-        focusCardId = "";
-        els.drawArea.innerHTML = "";
-        renderHistory();
-        renderStatusBoard();
-        els.deckStatus.textContent = deckStatusLine();
-        publishViewerState();
-        toast("Local state reset.");
-      });
-
-      window.addEventListener("keydown", (e) => {
-        if(e.key.toLowerCase() === "d") els.drawBtn.click();
-        if(e.key.toLowerCase() === "c") els.copyBtn.click();
-      });
-
-      toast("GM ready. Open viewer.html on the projector.");
     }catch(err){
-      els.deckStatus.textContent = "Failed to load deck. Check that briefing_deck.json is in the same folder as index.html.";
-      els.drawArea.innerHTML = `
-        <div class="card">
-          <div class="small" style="color: var(--red);">
-            ${escapeHtml(err.message || String(err))}
-          </div>
-          <div class="small" style="margin-top:10px;">
-            GitHub Pages note: JSON fetch requires running via a server (Pages is fine).
-          </div>
-        </div>
-      `;
+      els.deckStatus.textContent = "Failed to load deck. Check briefing_deck.json in repo root.";
+      els.remoteStatus.textContent = err.message || String(err);
+      setNet(false);
+      return;
     }
+
+    // Load backend state (authoritative), else local cache fallback
+    try{
+      setNet(true, "Loading backend state…");
+      const s = await apiGetState();
+      publishedState = normalizeState(s);
+      saveLS(LS.publishedCache, publishedState);
+      setNet(true, `Loaded • Updated: ${new Date(publishedState.updatedAt || Date.now()).toLocaleString()}`);
+    }catch(err){
+      const cached = loadLS(LS.publishedCache, null);
+      if(cached){
+        publishedState = normalizeState(cached);
+        setNet(false, `Backend load failed; using cached published state.`);
+      } else {
+        setNet(false, `Backend load failed; no cache yet.`);
+      }
+    }
+
+    // Apply subtitle to local input if backend has one (unless you already typed something)
+    if(!els.viewerSubtitle.value.trim() && publishedState.subtitle){
+      els.viewerSubtitle.value = publishedState.subtitle;
+      localStorage.setItem(LS.subtitle, publishedState.subtitle);
+    }
+
+    renderStatusBoard();
+    renderHistory();
+    renderDraw([]);
+
+    // Events
+    els.category.addEventListener("change", () => {
+      els.deckStatus.textContent = deckStatusLine();
+    });
+
+    els.drawBtn.addEventListener("click", () => {
+      const count = Math.max(1, Math.min(8, parseInt(els.count.value || "3", 10)));
+      els.count.value = String(count);
+
+      const mode = els.mode.value;
+      lastDraw = drawCards(DECK.cards, count, mode);
+      renderDraw(lastDraw);
+      appendHistory(lastDraw);
+      els.deckStatus.textContent = deckStatusLine();
+      toast(`Drew ${lastDraw.length} card(s).`);
+    });
+
+    els.copyBtn.addEventListener("click", async () => {
+      if(!lastDraw.length){
+        toast("Nothing to copy yet. Draw first.");
+        return;
+      }
+      const stamp = new Date().toLocaleString();
+      const lines = [];
+      lines.push("CRUSADE INTELLIGENCE BRIEFING");
+      lines.push(`Generated: ${stamp}`);
+      lines.push("");
+
+      for(const c of lastDraw){
+        lines.push(`[${c.category}] ${c.title} (${c.confidence || "Low"} Confidence)`);
+        lines.push(c.text);
+        lines.push("");
+      }
+
+      const txt = lines.join("\n");
+      try{
+        await navigator.clipboard.writeText(txt);
+        toast("Briefing copied.");
+      }catch(e){
+        prompt("Copy briefing:", txt);
+      }
+    });
+
+    els.pushBtn.addEventListener("click", async () => {
+      await safePublish("Published.");
+    });
+
+    els.resetBtn.addEventListener("click", () => {
+      if(!confirm("Reset LOCAL draw history + seen cycle? (Does not erase backend published state.)")) return;
+      localStorage.removeItem(LS.seen);
+      localStorage.removeItem(LS.history);
+      lastDraw = [];
+      renderHistory();
+      renderDraw([]);
+      els.deckStatus.textContent = deckStatusLine();
+      toast("Local reset done.");
+    });
+
+    // Hotkeys
+    window.addEventListener("keydown", (e) => {
+      if(e.key.toLowerCase() === "d") els.drawBtn.click();
+      if(e.key.toLowerCase() === "c") els.copyBtn.click();
+    });
+
+    toast("GM ready. Publish updates to push to viewer.");
   }
 
   init();
