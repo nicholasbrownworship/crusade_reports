@@ -50,7 +50,12 @@
       text-transform: uppercase;
     }
 
-    .sub{ color: var(--muted); font-size: 13px; line-height: 1.4; max-width: 70ch; }
+    .sub{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 78ch;
+    }
 
     .panel{
       background: var(--panel);
@@ -144,8 +149,25 @@
     }
 
     .small{ font-size: 12px; color: var(--muted); line-height:1.45; }
+    .error{ color: var(--red); }
 
-    /* projector friendly: make it breathe */
+    button{
+      appearance:none;
+      border: 1px solid rgba(209,161,75,0.25);
+      background: rgba(209,161,75,0.10);
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing: 0.3px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    button:hover{ background: rgba(209,161,75,0.16); border-color: rgba(209,161,75,0.35); }
+    button:active{ transform: translateY(1px); }
+
+    /* projector friendly */
     @media (min-width: 1000px){
       .card{ padding: 18px; }
       .ctitle{ font-size: 19px; }
@@ -159,38 +181,42 @@
     <header>
       <div>
         <h1>Crusade Intelligence Briefing</h1>
-        <div class="sub">Pinned intel only. Updates live from the GM screen running in another tab/window.</div>
+        <div class="sub">Pinned intel only. This page polls the GM backend for updates.</div>
       </div>
-      <div class="pill" id="status">Waiting for GM…</div>
+      <div class="pill" id="livePill">Status: Booting…</div>
     </header>
 
     <section class="panel">
       <div class="row">
         <div class="small" id="subtitle"></div>
         <div class="pill" id="updated">Updated: —</div>
+        <button id="refreshBtn" title="Force refresh">Refresh</button>
       </div>
+
       <div class="grid" id="list"></div>
     </section>
   </div>
 
 <script>
 (() => {
+  // ==== CONFIG ====
+  const APPS_SCRIPT_BASE =
+    "https://script.google.com/macros/s/AKfycbwKW6HJ2DkpxoAqLgwA5AeeA9_GvlBq7Fc8svttiLyML14wRUDuI5KAH7iQO4ns0hds/exec";
+
   const DECK_URL = "./briefing_deck.json";
+  const POLL_MS = 2000; // "live enough" without hammering
 
-  // Shared keys (GM writes these; Viewer reads them)
-  const LS = {
-    viewerState: "crusadeIntel_viewer_state_v1"
-  };
-
-  // Broadcast channel for instant updates (same origin)
-  const CHANNEL_NAME = "crusadeIntel_channel_v1";
-
-  const elStatus = document.getElementById("status");
+  // ==== ELEMENTS ====
+  const elLive = document.getElementById("livePill");
   const elUpdated = document.getElementById("updated");
   const elSubtitle = document.getElementById("subtitle");
   const elList = document.getElementById("list");
+  const refreshBtn = document.getElementById("refreshBtn");
 
+  // ==== STATE ====
   let deck = null;
+  let lastUpdatedAt = null;
+  let pollTimer = null;
 
   function escapeHtml(str){
     return String(str ?? "")
@@ -217,36 +243,41 @@
     }
   }
 
-  function readViewerState(){
-    try{
-      const raw = localStorage.getItem(LS.viewerState);
-      if(!raw) return null;
-      return JSON.parse(raw);
-    }catch(e){
-      return null;
-    }
+  function getRoom(){
+    const url = new URL(window.location.href);
+    return url.searchParams.get("room") || "default";
+  }
+
+  function apiUrl(){
+    const room = encodeURIComponent(getRoom());
+    return `${APPS_SCRIPT_BASE}?room=${room}`;
+  }
+
+  async function loadDeck(){
+    const res = await fetch(DECK_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error(`Failed to load deck (${res.status}). Is briefing_deck.json in the repo root?`);
+    deck = await res.json();
+  }
+
+  function renderEmpty(msg){
+    elList.innerHTML = `<div class="card"><div class="small">${escapeHtml(msg)}</div></div>`;
+  }
+
+  function renderError(msg){
+    elList.innerHTML = `<div class="card"><div class="small error">${escapeHtml(msg)}</div></div>`;
   }
 
   function render(state){
-    if(!state){
-      elStatus.textContent = "Waiting for GM…";
-      elUpdated.textContent = "Updated: —";
-      elSubtitle.textContent = "";
-      elList.innerHTML = `<div class="card"><div class="small">No pinned intel yet. (Open the GM page and pin something.)</div></div>`;
-      return;
-    }
-
-    elStatus.textContent = "Live";
-    const stamp = state.updatedAt ? new Date(state.updatedAt).toLocaleString() : "—";
+    const stamp = state?.updatedAt ? new Date(state.updatedAt).toLocaleString() : "—";
     elUpdated.textContent = `Updated: ${stamp}`;
-    elSubtitle.textContent = state.subtitle ? state.subtitle : "";
-
-    const pinned = Array.isArray(state.pinned) ? state.pinned : [];
-    const focusId = state.focusCardId || "";
-
+    elSubtitle.textContent = state?.subtitle ? state.subtitle : "";
     elList.innerHTML = "";
+
+    const pinned = Array.isArray(state?.pinned) ? state.pinned : [];
+    const focusId = state?.focusCardId || "";
+
     if(pinned.length === 0){
-      elList.innerHTML = `<div class="card"><div class="small">No pinned intel yet.</div></div>`;
+      renderEmpty("No pinned intel yet.");
       return;
     }
 
@@ -278,41 +309,57 @@
     }
   }
 
+  async function fetchState(){
+    const url = apiUrl();
+    const res = await fetch(url, { cache: "no-store" });
+    if(!res.ok) throw new Error(`Backend GET failed (${res.status}).`);
+    const data = await res.json();
+    if(!data || data.ok !== true) throw new Error(data?.error || "Backend returned ok:false.");
+    return data.state;
+  }
+
+  async function tick(force=false){
+    try{
+      elLive.textContent = `Status: Live • Room: ${getRoom()}`;
+
+      const state = await fetchState();
+
+      // Avoid rerender if unchanged
+      const updatedAt = state?.updatedAt ?? 0;
+      if(force || lastUpdatedAt !== updatedAt){
+        lastUpdatedAt = updatedAt;
+        render(state);
+      }
+    }catch(err){
+      elLive.textContent = `Status: Offline • Room: ${getRoom()}`;
+      renderError(err.message || String(err));
+    }
+  }
+
   async function init(){
     try{
-      const dRes = await fetch(DECK_URL, { cache: "no-store" });
-      if(!dRes.ok) throw new Error(`Failed to load deck (${dRes.status})`);
-      deck = await dRes.json();
+      await loadDeck();
     }catch(err){
-      elStatus.textContent = "Error";
-      elList.innerHTML = `<div class="card"><div class="small" style="color: var(--red);">${escapeHtml(err.message || String(err))}</div></div>`;
+      elLive.textContent = "Status: Error";
+      renderError(err.message || String(err));
       return;
     }
 
-    // First render from localStorage (if GM already published)
-    render(readViewerState());
+    await tick(true);
+    pollTimer = setInterval(() => tick(false), POLL_MS);
 
-    // BroadcastChannel: instant updates
-    if("BroadcastChannel" in window){
-      const bc = new BroadcastChannel(CHANNEL_NAME);
-      bc.onmessage = (ev) => {
-        if(ev?.data?.type === "viewer_state"){
-          render(ev.data.state);
-        }
-      };
-    }
+    refreshBtn.addEventListener("click", () => tick(true));
 
-    // localStorage event fallback (fires in other tabs)
-    window.addEventListener("storage", (e) => {
-      if(e.key === LS.viewerState){
-        render(readViewerState());
+    // Pause polling if tab is hidden (saves phone battery)
+    document.addEventListener("visibilitychange", () => {
+      if(document.hidden){
+        if(pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+      } else {
+        tick(true);
+        if(!pollTimer) pollTimer = setInterval(() => tick(false), POLL_MS);
       }
     });
-
-    // Safety poll (covers edge cases)
-    setInterval(() => {
-      render(readViewerState());
-    }, 2500);
   }
 
   init();
