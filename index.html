@@ -3,22 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Crusade Intelligence Briefings (GM)</title>
+  <title>Crusade Intel Switcher (GM)</title>
   <meta name="color-scheme" content="dark" />
 
   <style>
     :root{
-      --bg0:#07080b;
-      --bg1:#0b0e14;
-      --ink:#e9e6dc;
-      --muted:#b7b1a2;
-      --dim:#7d776b;
-
-      --gold:#d1a14b;
-      --red:#cc3b3b;
-      --green:#3fbf7f;
-      --blue:#4aa6ff;
-
+      --bg0:#07080b; --bg1:#0b0e14;
+      --ink:#e9e6dc; --muted:#b7b1a2; --dim:#7d776b;
+      --gold:#d1a14b; --red:#cc3b3b; --green:#3fbf7f; --blue:#4aa6ff;
       --panel: rgba(10, 12, 18, 0.72);
       --panel2: rgba(12, 14, 20, 0.55);
       --line: rgba(209, 161, 75, 0.18);
@@ -40,7 +32,7 @@
       overflow-x:hidden;
     }
 
-    .wrap{ max-width: 1120px; margin: 0 auto; padding: 28px 18px 60px; }
+    .wrap{ max-width: 1180px; margin: 0 auto; padding: 28px 18px 60px; }
 
     header{
       display:flex;
@@ -52,7 +44,6 @@
     }
 
     .title{ display:flex; flex-direction:column; gap:6px; }
-
     h1{
       margin:0;
       font-size: 22px;
@@ -63,7 +54,20 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.4;
-      max-width: 84ch;
+      max-width: 92ch;
+    }
+
+    .pill{
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid rgba(209,161,75,0.14);
+      background: rgba(0,0,0,0.18);
+      padding: 6px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
     }
 
     .panel{
@@ -74,16 +78,89 @@
       overflow:hidden;
     }
 
+    .tabs{
+      display:flex;
+      gap:10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(209,161,75,0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .tabset{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .tab{
+      border: 1px solid rgba(209,161,75,0.22);
+      background: rgba(209,161,75,0.08);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight: 750;
+      letter-spacing: 0.4px;
+      user-select:none;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .tab small{ color: var(--muted); font-weight: 650; }
+    .tab.active{
+      border-color: rgba(74,166,255,0.55);
+      background: rgba(74,166,255,0.16);
+      box-shadow: 0 0 0 6px rgba(74,166,255,0.08);
+    }
+
+    .topactions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+    button{
+      appearance:none;
+      border: 1px solid rgba(209,161,75,0.25);
+      background: rgba(209,161,75,0.10);
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing: 0.3px;
+      transition: transform .08s ease, background .12s ease, border-color .12s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    button:hover{ background: rgba(209,161,75,0.16); border-color: rgba(209,161,75,0.35); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      background: rgba(74,166,255,0.12);
+      border-color: rgba(74,166,255,0.35);
+    }
+    button.primary:hover{
+      background: rgba(74,166,255,0.18);
+      border-color: rgba(74,166,255,0.5);
+    }
+    button.danger{
+      background: rgba(204,59,59,0.12);
+      border-color: rgba(204,59,59,0.35);
+    }
+    button.danger:hover{
+      background: rgba(204,59,59,0.18);
+      border-color: rgba(204,59,59,0.5);
+    }
+
     .controls{
       display:grid;
-      grid-template-columns: 0.8fr 0.9fr 0.9fr 1.2fr 1.2fr auto;
+      grid-template-columns: 0.7fr 1fr 0.9fr 1.6fr 1.3fr auto;
       gap:10px;
       padding: 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
       border-bottom: 1px solid rgba(209,161,75,0.14);
     }
 
-    .controls .field{
+    .field{
       display:flex;
       flex-direction:column;
       gap:6px;
@@ -106,57 +183,13 @@
       outline: none;
     }
 
-    .btnrow{
-      display:flex;
-      gap:10px;
-      align-items:flex-end;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-    }
-
-    button{
-      appearance:none;
-      border: 1px solid rgba(209,161,75,0.25);
-      background: rgba(209,161,75,0.10);
-      color: var(--ink);
-      border-radius: 14px;
-      padding: 10px 12px;
-      cursor:pointer;
-      font-weight: 650;
-      letter-spacing: 0.3px;
-      transition: transform .08s ease, background .12s ease, border-color .12s ease;
-      user-select:none;
-      white-space:nowrap;
-    }
-    button:hover{ background: rgba(209,161,75,0.16); border-color: rgba(209,161,75,0.35); }
-    button:active{ transform: translateY(1px); }
-
-    button.primary{
-      background: rgba(74,166,255,0.12);
-      border-color: rgba(74,166,255,0.35);
-    }
-    button.primary:hover{
-      background: rgba(74,166,255,0.18);
-      border-color: rgba(74,166,255,0.5);
-    }
-
-    button.danger{
-      background: rgba(204,59,59,0.12);
-      border-color: rgba(204,59,59,0.35);
-    }
-    button.danger:hover{
-      background: rgba(204,59,59,0.18);
-      border-color: rgba(204,59,59,0.5);
-    }
-
     .grid{
       display:grid;
       grid-template-columns: 1.35fr 0.65fr;
       gap: 14px;
       padding: 14px;
     }
-
-    @media (max-width: 1020px){
+    @media (max-width: 1060px){
       .controls{ grid-template-columns: 1fr 1fr; }
       .grid{ grid-template-columns: 1fr; }
     }
@@ -169,7 +202,6 @@
       position:relative;
       overflow:hidden;
     }
-
     .card:before{
       content:"";
       position:absolute;
@@ -179,16 +211,7 @@
         radial-gradient(500px 160px at 100% 0%, rgba(74,166,255,0.08), transparent 60%);
       pointer-events:none;
     }
-
     .card > *{ position:relative; }
-
-    .cardhead{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom: 10px;
-    }
 
     .badge{
       font-size: 11px;
@@ -221,26 +244,12 @@
       align-items:center;
       justify-content:space-between;
     }
-
     .meta .left{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
       align-items:center;
     }
-
-    .pill{
-      font-size: 11px;
-      color: var(--muted);
-      border: 1px solid rgba(209,161,75,0.14);
-      background: rgba(0,0,0,0.18);
-      padding: 6px 9px;
-      border-radius: 999px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-    }
-
     .actions{ display:flex; gap:8px; flex-wrap:wrap; }
 
     .stack{ display:flex; flex-direction:column; gap:10px; }
@@ -254,7 +263,7 @@
       display:flex;
       flex-direction:column;
       gap:8px;
-      max-height: 380px;
+      max-height: 420px;
       overflow:auto;
       padding-right: 4px;
     }
@@ -302,12 +311,13 @@
       pointer-events:none;
       transition: opacity .16s ease, transform .16s ease;
       font-size: 12px;
-      max-width: min(780px, calc(100vw - 26px));
+      max-width: min(860px, calc(100vw - 26px));
     }
     .toast.show{
       opacity:1;
       transform: translateX(-50%) translateY(-4px);
     }
+
     .kbd{
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 11px;
@@ -324,16 +334,29 @@
   <div class="wrap">
     <header>
       <div class="title">
-        <h1>Crusade Intelligence Briefings (GM)</h1>
+        <h1>Crusade Intel Switcher (GM)</h1>
         <div class="sub">
-          GM “switcher” page. Open <span class="kbd">viewer.html</span> on the projector/phones.
-          This page publishes pinned intel to your Apps Script backend. Hotkeys: <span class="kbd">D</span> draw, <span class="kbd">C</span> copy.
+          Three independent “program feeds.” Send players the matching links:
+          <span class="kbd">viewer.html?room=defenders</span>,
+          <span class="kbd">viewer.html?room=raiders</span>,
+          <span class="kbd">viewer.html?room=attackers</span>.
+          Hotkeys: <span class="kbd">D</span> draw • <span class="kbd">C</span> copy.
         </div>
       </div>
       <div class="pill" id="netPill">Backend: Booting…</div>
     </header>
 
     <section class="panel">
+      <div class="tabs">
+        <div class="tabset" id="tabset"></div>
+        <div class="topactions">
+          <button id="loadBtn">Load Room</button>
+          <button class="primary" id="publishBtn">Publish Room</button>
+          <button id="publishAllBtn" title="Publish each room using its current pinned board">Publish All</button>
+          <button class="danger" id="resetLocalBtn">Reset Local</button>
+        </div>
+      </div>
+
       <div class="controls">
         <div class="field">
           <label for="count">Draw Count</label>
@@ -350,26 +373,24 @@
         <div class="field">
           <label for="mode">Draw Mode</label>
           <select id="mode">
-            <option value="unique">Unique (no repeats until deck exhausted)</option>
-            <option value="any">Any (repeats allowed)</option>
+            <option value="unique">Unique</option>
+            <option value="any">Any</option>
           </select>
         </div>
 
         <div class="field">
-          <label for="room">Room</label>
-          <input id="room" type="text" placeholder="default" />
+          <label for="subtitle">Viewer Subtitle (Room)</label>
+          <input id="subtitle" type="text" placeholder="Optional line shown to that room…" />
         </div>
 
         <div class="field">
-          <label for="gmKey">GM Key</label>
-          <input id="gmKey" type="password" placeholder="(stored locally in your browser)" />
+          <label for="gmKey">GM Key (Room)</label>
+          <input id="gmKey" type="password" placeholder="Key for selected room" />
         </div>
 
         <div class="btnrow">
-          <button class="primary" id="drawBtn">Draw Briefing</button>
-          <button id="copyBtn">Copy Briefing</button>
-          <button id="pushBtn" title="Publish pinned/status to viewer">Publish</button>
-          <button class="danger" id="resetBtn">Reset Local</button>
+          <button class="primary" id="drawBtn">Draw</button>
+          <button id="copyBtn">Copy</button>
         </div>
       </div>
 
@@ -377,16 +398,10 @@
         <div class="leftcol stack">
           <div class="card">
             <div class="small" id="deckStatus">Loading deck…</div>
-            <div class="small" id="remoteStatus" style="margin-top:6px;">Loading backend state…</div>
+            <div class="small" id="roomStatus" style="margin-top:6px;">Loading room state…</div>
             <div class="small warn" style="margin-top:8px;">
-              Tip: Don’t hardcode the GM key into the file. Keep it in this input only.
+              Keys live in your browser only. Don’t commit keys into GitHub.
             </div>
-          </div>
-
-          <div class="card">
-            <label for="viewerSubtitle" style="display:block;margin-bottom:6px;">Viewer Subtitle</label>
-            <input id="viewerSubtitle" type="text" placeholder="Optional line shown on viewer..." />
-            <div class="small" style="margin-top:8px;">Example: “Campaign Turn 4 — Vox traffic unstable.”</div>
           </div>
 
           <div id="drawArea" class="stack"></div>
@@ -394,14 +409,14 @@
 
         <div class="rightcol stack">
           <div class="card">
-            <h3 class="ctitle" style="margin:0 0 6px;">Pinned / Status Board (Published)</h3>
-            <div class="small">This is what players see on <span class="kbd">viewer.html</span>. Use Focus to spotlight one card.</div>
+            <h3 class="ctitle" style="margin:0 0 6px;">Pinned / Status Board (This Room)</h3>
+            <div class="small">This room’s published feed. Focus highlights a single card on the viewer.</div>
             <div class="history" id="statusBoard"></div>
           </div>
 
           <div class="card">
-            <h3 class="ctitle" style="margin:0 0 6px;">Draw History</h3>
-            <div class="small">Quick log (local).</div>
+            <h3 class="ctitle" style="margin:0 0 6px;">Draw History (Local)</h3>
+            <div class="small">Just for your GM screen.</div>
             <div class="history" id="history"></div>
           </div>
         </div>
@@ -416,38 +431,46 @@
   // ===== CONFIG =====
   const APPS_SCRIPT_BASE =
     "https://script.google.com/macros/s/AKfycbwKW6HJ2DkpxoAqLgwA5AeeA9_GvlBq7Fc8svttiLyML14wRUDuI5KAH7iQO4ns0hds/exec";
-
   const DECK_URL = "./briefing_deck.json";
 
+  const ROOMS = [
+    { id: "defenders", label: "Defenders" },
+    { id: "raiders",   label: "Raiders" },
+    { id: "attackers", label: "Attackers" }
+  ];
+
+  // ===== STORAGE KEYS =====
   const LS = {
     seen: "crusadeIntel_seen_v1",
     history: "crusadeIntel_history_v1",
+    activeRoom: "crusadeIntel_activeRoom_v1",
 
-    // We keep a local cache of the last *published* state (so GM UI shows it even if backend is down)
-    publishedCache: "crusadeIntel_published_cache_v1",
-
-    // Store these locally so you don't retype every time
-    room: "crusadeIntel_room_v1",
-    gmKey: "crusadeIntel_gmkey_v1",
-    subtitle: "crusadeIntel_subtitle_v1"
+    // per-room local cache + per-room GM key
+    roomState: (room) => `crusadeIntel_room_state_${room}_v1`,
+    roomKey:   (room) => `crusadeIntel_room_key_${room}_v1`
   };
 
+  // ===== ELEMENTS =====
   const els = {
     netPill: document.getElementById("netPill"),
-    deckStatus: document.getElementById("deckStatus"),
-    remoteStatus: document.getElementById("remoteStatus"),
+    tabset: document.getElementById("tabset"),
+
+    loadBtn: document.getElementById("loadBtn"),
+    publishBtn: document.getElementById("publishBtn"),
+    publishAllBtn: document.getElementById("publishAllBtn"),
+    resetLocalBtn: document.getElementById("resetLocalBtn"),
 
     count: document.getElementById("count"),
     category: document.getElementById("category"),
     mode: document.getElementById("mode"),
-    room: document.getElementById("room"),
+    subtitle: document.getElementById("subtitle"),
     gmKey: document.getElementById("gmKey"),
-    viewerSubtitle: document.getElementById("viewerSubtitle"),
 
     drawBtn: document.getElementById("drawBtn"),
     copyBtn: document.getElementById("copyBtn"),
-    pushBtn: document.getElementById("pushBtn"),
-    resetBtn: document.getElementById("resetBtn"),
+
+    deckStatus: document.getElementById("deckStatus"),
+    roomStatus: document.getElementById("roomStatus"),
 
     drawArea: document.getElementById("drawArea"),
     statusBoard: document.getElementById("statusBoard"),
@@ -455,18 +478,19 @@
     toast: document.getElementById("toast")
   };
 
+  // ===== STATE =====
   let DECK = null;
   let lastDraw = [];
+  let activeRoom = loadPlain(LS.activeRoom, "defenders");
 
-  // Published/shared state (the actual program feed)
-  let publishedState = {
-    updatedAt: 0,
-    subtitle: "",
-    pinned: [],
-    focusCardId: ""
+  // Per-room program feed states
+  const roomStates = {
+    defenders: loadRoomCache("defenders"),
+    raiders:   loadRoomCache("raiders"),
+    attackers: loadRoomCache("attackers")
   };
 
-  // ===== helpers =====
+  // ===== HELPERS =====
   function escapeHtml(str){
     return String(str ?? "")
       .replaceAll("&","&amp;")
@@ -483,7 +507,7 @@
     toast._t = window.setTimeout(() => els.toast.classList.remove("show"), 1400);
   }
 
-  function loadLS(key, fallback){
+  function loadJSON(key, fallback){
     try{
       const raw = localStorage.getItem(key);
       if(!raw) return fallback;
@@ -492,8 +516,62 @@
       return fallback;
     }
   }
-  function saveLS(key, val){
+  function saveJSON(key, val){
     localStorage.setItem(key, JSON.stringify(val));
+  }
+  function loadPlain(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      if(raw === null || raw === undefined) return fallback;
+      return String(raw).replaceAll('"','') || fallback;
+    }catch(e){
+      return fallback;
+    }
+  }
+  function savePlain(key, val){
+    localStorage.setItem(key, String(val));
+  }
+
+  function normalizeState(s){
+    const out = {
+      updatedAt: Number(s?.updatedAt || 0),
+      subtitle: String(s?.subtitle || ""),
+      focusCardId: String(s?.focusCardId || ""),
+      pinned: Array.isArray(s?.pinned) ? s.pinned.map(p => ({
+        card_id: String(p.card_id || ""),
+        status: String(p.status || "ongoing"),
+        note: String(p.note || "")
+      })).filter(p => p.card_id) : []
+    };
+    return out;
+  }
+
+  function emptyState(){
+    return { updatedAt: 0, subtitle: "", pinned: [], focusCardId: "" };
+  }
+
+  function loadRoomCache(room){
+    const cached = loadJSON(LS.roomState(room), null);
+    return cached ? normalizeState(cached) : emptyState();
+  }
+
+  function saveRoomCache(room){
+    saveJSON(LS.roomState(room), roomStates[room]);
+  }
+
+  function getRoom(){
+    return activeRoom;
+  }
+
+  function getState(){
+    return roomStates[getRoom()];
+  }
+
+  function setNet(ok, msg){
+    els.netPill.textContent = ok ? `Backend: Online` : `Backend: Offline`;
+    els.netPill.style.borderColor = ok ? "rgba(63,191,127,0.35)" : "rgba(204,59,59,0.35)";
+    els.netPill.style.background = ok ? "rgba(63,191,127,0.10)" : "rgba(204,59,59,0.10)";
+    if(msg) els.roomStatus.textContent = msg;
   }
 
   function confidenceDotClass(conf){
@@ -504,7 +582,7 @@
   }
 
   function statusLabel(status){
-    switch(status){
+    switch((status||"").toLowerCase()){
       case "ongoing": return "Ongoing";
       case "resolved": return "Resolved";
       case "false": return "Misinformation";
@@ -540,7 +618,7 @@
       return out;
     }
 
-    let seen = new Set(loadLS(LS.seen, []));
+    let seen = new Set(loadJSON(LS.seen, []));
     let unseen = pool.filter(c => !seen.has(c.id));
 
     if(unseen.length < count){
@@ -557,30 +635,25 @@
     }
 
     for(const c of out) seen.add(c.id);
-    saveLS(LS.seen, Array.from(seen));
+    saveJSON(LS.seen, Array.from(seen));
     return out;
   }
 
-  function apiGetUrl(){
-    const room = (els.room.value || "default").trim() || "default";
+  function apiGetUrl(room){
     return `${APPS_SCRIPT_BASE}?room=${encodeURIComponent(room)}`;
   }
 
-  async function apiGetState(){
-    const res = await fetch(apiGetUrl(), { cache: "no-store" });
-    if(!res.ok) throw new Error(`Backend GET failed (${res.status})`);
+  async function apiGetState(room){
+    const res = await fetch(apiGetUrl(room), { cache: "no-store" });
+    if(!res.ok) throw new Error(`GET failed (${res.status})`);
     const data = await res.json();
-    if(!data || data.ok !== true) throw new Error(data?.error || "Backend ok:false");
+    if(!data || data.ok !== true) throw new Error(data?.error || "GET ok:false");
     return data.state;
   }
 
-  async function apiPostState(state){
-    const room = (els.room.value || "default").trim() || "default";
+  async function apiPostState(room, state){
     const key = (els.gmKey.value || "").trim();
-
-    if(!key){
-      throw new Error("GM Key is blank. Enter it to publish.");
-    }
+    if(!key) throw new Error("GM Key is blank for this room.");
 
     const payload = { room, key, state };
 
@@ -590,12 +663,55 @@
       body: JSON.stringify(payload)
     });
 
-    // Apps Script often returns 200 even on logical error, so inspect JSON
     const data = await res.json().catch(() => null);
     if(!data || data.ok !== true){
       throw new Error(data?.error || `Publish failed (${res.status}).`);
     }
-    return data.state; // should include updatedAt (server-stamped too)
+    return data.state;
+  }
+
+  // ===== RENDER =====
+  function deckStatusLine(){
+    const total = (DECK?.cards || []).length;
+    const cat = els.category.value;
+    const pool = eligibleCards(DECK.cards);
+    const seen = new Set(loadJSON(LS.seen, []));
+    const poolSeen = pool.filter(c => seen.has(c.id)).length;
+    const poolUnseen = pool.length - poolSeen;
+
+    const catText = (cat === "__all__") ? "All Categories" : cat;
+    return `Deck: ${total} cards • Filter: ${catText} • Unique cycle: ${poolUnseen} unseen / ${pool.length}`;
+  }
+
+  function renderTabs(){
+    els.tabset.innerHTML = "";
+    for(const r of ROOMS){
+      const btn = document.createElement("button");
+      btn.className = "tab" + (r.id === activeRoom ? " active" : "");
+      const s = roomStates[r.id];
+      const count = (s?.pinned || []).length;
+      btn.innerHTML = `${escapeHtml(r.label)} <small>(${count})</small>`;
+      btn.addEventListener("click", () => {
+        activeRoom = r.id;
+        savePlain(LS.activeRoom, activeRoom);
+        syncRoomFieldsFromState();
+        renderTabs();
+        renderStatusBoard();
+        renderDraw(lastDraw);
+        toast(`Switched: ${r.label}`);
+      });
+      els.tabset.appendChild(btn);
+    }
+  }
+
+  function syncRoomFieldsFromState(){
+    const room = getRoom();
+    const state = getState();
+    // load per-room key into input
+    const savedKey = loadPlain(LS.roomKey(room), "");
+    els.gmKey.value = savedKey;
+    els.subtitle.value = state.subtitle || "";
+    els.roomStatus.textContent = `Room: ${room} • Updated: ${state.updatedAt ? new Date(state.updatedAt).toLocaleString() : "—"}`;
   }
 
   function renderDraw(cards){
@@ -609,10 +725,22 @@
     }
   }
 
+  function upsertPinned(state, cardId, status, note){
+    const idx = state.pinned.findIndex(p => p.card_id === cardId);
+    const entry = {
+      card_id: cardId,
+      status: status || "ongoing",
+      note: (note || "").slice(0, 200)
+    };
+    if(idx === -1) state.pinned.unshift(entry);
+    else state.pinned[idx] = entry;
+  }
+
   function makeDrawCardEl(c){
-    const published = publishedState.pinned.find(p => p.card_id === c.id);
-    const currentStatus = published?.status || "";
-    const currentNote = published?.note || "";
+    const state = getState();
+    const existing = state.pinned.find(p => p.card_id === c.id);
+    const currentStatus = existing?.status || "";
+    const currentNote = existing?.note || "";
 
     const wrap = document.createElement("div");
     wrap.className = "card";
@@ -651,78 +779,71 @@
     `;
 
     wrap.querySelectorAll("button").forEach(btn => {
-      btn.addEventListener("click", async () => {
+      btn.addEventListener("click", () => {
         const act = btn.getAttribute("data-act");
+        const state = getState();
+
         if(act === "note"){
-          const current = publishedState.pinned.find(p => p.card_id === c.id)?.note || "";
+          const current = state.pinned.find(p => p.card_id === c.id)?.note || "";
           const next = prompt("GM note (short):", current);
           if(next === null) return;
-          upsertPinned(c.id, currentStatus || "ongoing", next.trim());
-          publishedState.focusCardId = c.id;
-          await safePublish("Note saved + published.");
+          upsertPinned(state, c.id, currentStatus || "ongoing", next.trim());
+          state.focusCardId = c.id;
+          saveRoomCache(getRoom());
           renderStatusBoard();
           renderDraw(lastDraw);
+          toast("Note saved (local). Publish when ready.");
           return;
         }
 
         if(act === "focus"){
-          // focus does not require pin, but it only really matters if pinned exists
-          publishedState.focusCardId = c.id;
-          if(!publishedState.pinned.some(p => p.card_id === c.id)){
-            upsertPinned(c.id, "ongoing", "");
+          state.focusCardId = c.id;
+          if(!state.pinned.some(p => p.card_id === c.id)){
+            upsertPinned(state, c.id, "ongoing", "");
           }
-          await safePublish("Focused + published.");
+          saveRoomCache(getRoom());
           renderStatusBoard();
           renderDraw(lastDraw);
+          toast("Focused (local). Publish when ready.");
           return;
         }
 
         if(act === "unpin"){
-          publishedState.pinned = publishedState.pinned.filter(p => p.card_id !== c.id);
-          if(publishedState.focusCardId === c.id) publishedState.focusCardId = "";
-          await safePublish("Unpinned + published.");
+          state.pinned = state.pinned.filter(p => p.card_id !== c.id);
+          if(state.focusCardId === c.id) state.focusCardId = "";
+          saveRoomCache(getRoom());
           renderStatusBoard();
           renderDraw(lastDraw);
+          toast("Unpinned (local). Publish when ready.");
           return;
         }
 
-        // pin/status
         const status = (act === "pin") ? "ongoing" : act;
-        upsertPinned(c.id, status, currentNote || "");
-        publishedState.focusCardId = c.id;
-        await safePublish(`${statusLabel(status)} + published.`);
+        upsertPinned(state, c.id, status, currentNote || "");
+        state.focusCardId = c.id;
+        saveRoomCache(getRoom());
         renderStatusBoard();
         renderDraw(lastDraw);
+        toast(`${statusLabel(status)} (local). Publish when ready.`);
       });
     });
 
     return wrap;
   }
 
-  function upsertPinned(cardId, status, note){
-    const idx = publishedState.pinned.findIndex(p => p.card_id === cardId);
-    const entry = {
-      card_id: cardId,
-      status: status || "ongoing",
-      note: (note || "").slice(0, 200)
-    };
-    if(idx === -1) publishedState.pinned.unshift(entry);
-    else publishedState.pinned[idx] = entry;
-  }
-
   function renderStatusBoard(){
+    const state = getState();
     els.statusBoard.innerHTML = "";
-    const pinned = publishedState.pinned || [];
-    if(pinned.length === 0){
-      els.statusBoard.innerHTML = `<div class="small">No pinned intel published yet.</div>`;
+    if(!state.pinned.length){
+      els.statusBoard.innerHTML = `<div class="small">No pinned intel in this room yet.</div>`;
       return;
     }
 
-    for(const p of pinned){
+    for(const p of state.pinned){
       const card = (DECK?.cards || []).find(c => c.id === p.card_id);
       if(!card) continue;
 
-      const isFocus = publishedState.focusCardId === p.card_id;
+      const isFocus = state.focusCardId === p.card_id;
 
       const el = document.createElement("div");
       el.className = "hitem";
@@ -736,47 +857,55 @@
           ${p.note ? `<div style="margin-top:6px; color: var(--muted);">${escapeHtml(p.note)}</div>` : ``}
           <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
             <button data-sb="focus">Focus</button>
-            <button data-sb="up">Move Up</button>
-            <button data-sb="down">Move Down</button>
+            <button data-sb="up">Up</button>
+            <button data-sb="down">Down</button>
             <button data-sb="remove">Remove</button>
           </div>
         </div>
       `;
 
-      el.querySelector('[data-sb="focus"]').addEventListener("click", async () => {
-        publishedState.focusCardId = p.card_id;
-        await safePublish("Focused + published.");
+      el.querySelector('[data-sb="focus"]').addEventListener("click", () => {
+        const state = getState();
+        state.focusCardId = p.card_id;
+        saveRoomCache(getRoom());
         renderStatusBoard();
         renderDraw(lastDraw);
+        toast("Focus set (local). Publish when ready.");
       });
 
-      el.querySelector('[data-sb="remove"]').addEventListener("click", async () => {
-        publishedState.pinned = publishedState.pinned.filter(x => x.card_id !== p.card_id);
-        if(publishedState.focusCardId === p.card_id) publishedState.focusCardId = "";
-        await safePublish("Removed + published.");
+      el.querySelector('[data-sb="remove"]').addEventListener("click", () => {
+        const state = getState();
+        state.pinned = state.pinned.filter(x => x.card_id !== p.card_id);
+        if(state.focusCardId === p.card_id) state.focusCardId = "";
+        saveRoomCache(getRoom());
         renderStatusBoard();
         renderDraw(lastDraw);
+        toast("Removed (local). Publish when ready.");
       });
 
-      el.querySelector('[data-sb="up"]').addEventListener("click", async () => {
-        const i = publishedState.pinned.findIndex(x => x.card_id === p.card_id);
+      el.querySelector('[data-sb="up"]').addEventListener("click", () => {
+        const state = getState();
+        const i = state.pinned.findIndex(x => x.card_id === p.card_id);
         if(i > 0){
-          const tmp = publishedState.pinned[i-1];
-          publishedState.pinned[i-1] = publishedState.pinned[i];
-          publishedState.pinned[i] = tmp;
-          await safePublish("Reordered + published.");
+          const tmp = state.pinned[i-1];
+          state.pinned[i-1] = state.pinned[i];
+          state.pinned[i] = tmp;
+          saveRoomCache(getRoom());
           renderStatusBoard();
+          toast("Reordered (local). Publish when ready.");
         }
       });
 
-      el.querySelector('[data-sb="down"]').addEventListener("click", async () => {
-        const i = publishedState.pinned.findIndex(x => x.card_id === p.card_id);
-        if(i !== -1 && i < publishedState.pinned.length - 1){
-          const tmp = publishedState.pinned[i+1];
-          publishedState.pinned[i+1] = publishedState.pinned[i];
-          publishedState.pinned[i] = tmp;
-          await safePublish("Reordered + published.");
+      el.querySelector('[data-sb="down"]').addEventListener("click", () => {
+        const state = getState();
+        const i = state.pinned.findIndex(x => x.card_id === p.card_id);
+        if(i !== -1 && i < state.pinned.length - 1){
+          const tmp = state.pinned[i+1];
+          state.pinned[i+1] = state.pinned[i];
+          state.pinned[i] = tmp;
+          saveRoomCache(getRoom());
           renderStatusBoard();
+          toast("Reordered (local). Publish when ready.");
         }
       });
 
@@ -785,7 +914,7 @@
   }
 
   function renderHistory(){
-    const hist = loadLS(LS.history, []);
+    const hist = loadJSON(LS.history, []);
     els.history.innerHTML = "";
     if(hist.length === 0){
       els.history.innerHTML = `<div class="small">No draws yet.</div>`;
@@ -807,7 +936,7 @@
   }
 
   function appendHistory(drawn){
-    const hist = loadLS(LS.history, []);
+    const hist = loadJSON(LS.history, []);
     const stamp = new Date().toLocaleString();
     for(const c of drawn){
       hist.unshift({
@@ -818,77 +947,70 @@
         time: stamp
       });
     }
-    saveLS(LS.history, hist.slice(0, 120));
+    saveJSON(LS.history, hist.slice(0, 120));
     renderHistory();
   }
 
-  function deckStatusLine(){
-    const total = (DECK?.cards || []).length;
-    const cat = els.category.value;
-    const pool = eligibleCards(DECK.cards);
-    const seen = new Set(loadLS(LS.seen, []));
-    const poolSeen = pool.filter(c => seen.has(c.id)).length;
-    const poolUnseen = pool.length - poolSeen;
-
-    const catText = (cat === "__all__") ? "All Categories" : cat;
-    return `Deck loaded: ${total} cards • Filter: ${catText} • In cycle: ${poolUnseen} unseen / ${pool.length} total (Unique mode)`;
+  // ===== BACKEND OPS =====
+  async function loadRoomFromBackend(room){
+    setNet(true, `Loading backend room: ${room}…`);
+    const s = await apiGetState(room);
+    roomStates[room] = normalizeState(s);
+    saveRoomCache(room);
+    setNet(true, `Loaded ${room} • Updated: ${roomStates[room].updatedAt ? new Date(roomStates[room].updatedAt).toLocaleString() : "—"}`);
   }
 
-  function setNet(ok, msg){
-    els.netPill.textContent = ok ? `Backend: Online` : `Backend: Offline`;
-    els.netPill.style.borderColor = ok ? "rgba(63,191,127,0.35)" : "rgba(204,59,59,0.35)";
-    els.netPill.style.background = ok ? "rgba(63,191,127,0.10)" : "rgba(204,59,59,0.10)";
-    if(msg) els.remoteStatus.textContent = msg;
-  }
+  async function publishRoomToBackend(room){
+    // save subtitle from field into this room's state
+    if(room === getRoom()){
+      roomStates[room].subtitle = els.subtitle.value.trim();
+      saveRoomCache(room);
+    }
 
-  async function safePublish(successMsg){
-    // keep subtitle in state + local
-    publishedState.subtitle = els.viewerSubtitle.value.trim();
-    saveLS(LS.subtitle, publishedState.subtitle);
-
-    try{
-      setNet(true, "Publishing…");
-      const saved = await apiPostState(publishedState);
-      publishedState = normalizeState(saved);
-      saveLS(LS.publishedCache, publishedState);
-      setNet(true, `Published • Updated: ${new Date(publishedState.updatedAt || Date.now()).toLocaleString()}`);
-      toast(successMsg || "Published.");
-    }catch(err){
-      setNet(false, `Publish failed: ${err.message || String(err)}`);
-      toast("Publish failed (see status).");
-      // still keep local cache updated so you don't lose work
-      saveLS(LS.publishedCache, publishedState);
+    // pull key for that room into input (so publishing works even if we switched)
+    const key = loadPlain(LS.roomKey(room), "");
+    if(room !== getRoom()){
+      // temporarily use that key for posting; don't disturb current room key field
+      return await publishRoomWithKey(room, key);
+    } else {
+      // current room uses current gmKey input
+      return await publishRoomWithKey(room, (els.gmKey.value || "").trim());
     }
   }
 
-  function normalizeState(s){
-    const out = {
-      updatedAt: Number(s?.updatedAt || 0),
-      subtitle: String(s?.subtitle || ""),
-      focusCardId: String(s?.focusCardId || ""),
-      pinned: Array.isArray(s?.pinned) ? s.pinned.map(p => ({
-        card_id: String(p.card_id || ""),
-        status: String(p.status || "ongoing"),
-        note: String(p.note || "")
-      })).filter(p => p.card_id) : []
-    };
-    return out;
+  async function publishRoomWithKey(room, key){
+    if(!key) throw new Error(`GM Key missing for room: ${room}`);
+    setNet(true, `Publishing ${room}…`);
+
+    // local copy so we don't mutate mid-flight
+    const state = normalizeState(roomStates[room]);
+    state.subtitle = String(state.subtitle || "");
+    // note: server stamps updatedAt too, but keep placeholder
+    state.updatedAt = Date.now();
+
+    const payload = { room, key, state };
+
+    const res = await fetch(APPS_SCRIPT_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json().catch(() => null);
+    if(!data || data.ok !== true){
+      throw new Error(data?.error || `Publish failed (${res.status}).`);
+    }
+
+    roomStates[room] = normalizeState(data.state);
+    saveRoomCache(room);
+
+    setNet(true, `Published ${room} • Updated: ${new Date(roomStates[room].updatedAt || Date.now()).toLocaleString()}`);
   }
 
-  // ===== init =====
+  // ===== INIT =====
   async function init(){
-    // restore local settings
-    els.room.value = (localStorage.getItem(LS.room) || "default").replaceAll('"','') || "default";
-    els.viewerSubtitle.value = (localStorage.getItem(LS.subtitle) || "").replaceAll('"','') || "";
-    // GM key stored as plain string in LS; do not commit to repo
-    const savedKey = localStorage.getItem(LS.gmKey);
-    if(savedKey) els.gmKey.value = savedKey.replaceAll('"','');
-
-    els.room.addEventListener("input", () => localStorage.setItem(LS.room, els.room.value.trim() || "default"));
-    els.gmKey.addEventListener("input", () => localStorage.setItem(LS.gmKey, els.gmKey.value));
-    els.viewerSubtitle.addEventListener("input", () => {
-      localStorage.setItem(LS.subtitle, els.viewerSubtitle.value);
-    });
+    // Build tabs
+    renderTabs();
 
     // Load deck
     try{
@@ -899,39 +1021,30 @@
       els.deckStatus.textContent = deckStatusLine();
     }catch(err){
       els.deckStatus.textContent = "Failed to load deck. Check briefing_deck.json in repo root.";
-      els.remoteStatus.textContent = err.message || String(err);
-      setNet(false);
+      els.roomStatus.textContent = err.message || String(err);
+      setNet(false, "Deck load failed.");
       return;
     }
 
-    // Load backend state (authoritative), else local cache fallback
-    try{
-      setNet(true, "Loading backend state…");
-      const s = await apiGetState();
-      publishedState = normalizeState(s);
-      saveLS(LS.publishedCache, publishedState);
-      setNet(true, `Loaded • Updated: ${new Date(publishedState.updatedAt || Date.now()).toLocaleString()}`);
-    }catch(err){
-      const cached = loadLS(LS.publishedCache, null);
-      if(cached){
-        publishedState = normalizeState(cached);
-        setNet(false, `Backend load failed; using cached published state.`);
-      } else {
-        setNet(false, `Backend load failed; no cache yet.`);
-      }
-    }
-
-    // Apply subtitle to local input if backend has one (unless you already typed something)
-    if(!els.viewerSubtitle.value.trim() && publishedState.subtitle){
-      els.viewerSubtitle.value = publishedState.subtitle;
-      localStorage.setItem(LS.subtitle, publishedState.subtitle);
-    }
-
+    // Sync room fields from local cache
+    syncRoomFieldsFromState();
     renderStatusBoard();
     renderHistory();
     renderDraw([]);
 
-    // Events
+    // Save key per room when you type it
+    els.gmKey.addEventListener("input", () => {
+      savePlain(LS.roomKey(getRoom()), els.gmKey.value);
+    });
+
+    // Subtitle is per room
+    els.subtitle.addEventListener("input", () => {
+      const state = getState();
+      state.subtitle = els.subtitle.value;
+      saveRoomCache(getRoom());
+    });
+
+    // Controls
     els.category.addEventListener("change", () => {
       els.deckStatus.textContent = deckStatusLine();
     });
@@ -950,12 +1063,12 @@
 
     els.copyBtn.addEventListener("click", async () => {
       if(!lastDraw.length){
-        toast("Nothing to copy yet. Draw first.");
+        toast("Nothing to copy. Draw first.");
         return;
       }
       const stamp = new Date().toLocaleString();
       const lines = [];
-      lines.push("CRUSADE INTELLIGENCE BRIEFING");
+      lines.push(`CRUSADE INTEL BRIEFING — ROOM: ${getRoom().toUpperCase()}`);
       lines.push(`Generated: ${stamp}`);
       lines.push("");
 
@@ -968,18 +1081,64 @@
       const txt = lines.join("\n");
       try{
         await navigator.clipboard.writeText(txt);
-        toast("Briefing copied.");
+        toast("Copied.");
       }catch(e){
         prompt("Copy briefing:", txt);
       }
     });
 
-    els.pushBtn.addEventListener("click", async () => {
-      await safePublish("Published.");
+    els.loadBtn.addEventListener("click", async () => {
+      const room = getRoom();
+      try{
+        await loadRoomFromBackend(room);
+        syncRoomFieldsFromState();
+        renderTabs();
+        renderStatusBoard();
+        renderDraw(lastDraw);
+        toast("Loaded room from backend.");
+      }catch(err){
+        setNet(false, `Load failed: ${err.message || String(err)}`);
+        toast("Load failed (see status).");
+      }
     });
 
-    els.resetBtn.addEventListener("click", () => {
-      if(!confirm("Reset LOCAL draw history + seen cycle? (Does not erase backend published state.)")) return;
+    els.publishBtn.addEventListener("click", async () => {
+      const room = getRoom();
+      try{
+        // ensure UI subtitle -> room state
+        roomStates[room].subtitle = els.subtitle.value.trim();
+        saveRoomCache(room);
+
+        await publishRoomWithKey(room, (els.gmKey.value || "").trim());
+        syncRoomFieldsFromState();
+        renderTabs();
+        toast("Published room.");
+      }catch(err){
+        setNet(false, `Publish failed: ${err.message || String(err)}`);
+        toast("Publish failed (see status).");
+      }
+    });
+
+    els.publishAllBtn.addEventListener("click", async () => {
+      try{
+        // commit active room subtitle before publishing all
+        roomStates[getRoom()].subtitle = els.subtitle.value.trim();
+        saveRoomCache(getRoom());
+
+        for(const r of ROOMS){
+          const key = loadPlain(LS.roomKey(r.id), "");
+          await publishRoomWithKey(r.id, key);
+        }
+        renderTabs();
+        toast("Published all rooms.");
+      }catch(err){
+        setNet(false, `Publish all failed: ${err.message || String(err)}`);
+        toast("Publish all failed (see status).");
+      }
+    });
+
+    els.resetLocalBtn.addEventListener("click", () => {
+      if(!confirm("Reset LOCAL draw history + unique-cycle? (Does not erase backend.)")) return;
       localStorage.removeItem(LS.seen);
       localStorage.removeItem(LS.history);
       lastDraw = [];
@@ -995,7 +1154,8 @@
       if(e.key.toLowerCase() === "c") els.copyBtn.click();
     });
 
-    toast("GM ready. Publish updates to push to viewer.");
+    setNet(true, `Ready • Active room: ${getRoom()}`);
+    toast("Switcher ready. Publish a room to push updates.");
   }
 
   init();
