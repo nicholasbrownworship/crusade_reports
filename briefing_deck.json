@@ -1,239 +1,239 @@
 {
   "meta": {
     "deck_name": "Crusade Intelligence Briefings — Starter Deck",
-    "version": "1.0",
-    "notes": "Vague, reusable intelligence cards. Each can be true/false/partial/progaganda."
+    "version": "1.1",
+    "notes": "Reusable sector-level intelligence slips. Any item may be true, false, misread, or deliberate psy-ops—interpretation is the point."
   },
   "cards": [
     {
       "id": "strategic_shifting_frontlines",
       "category": "Strategic Observations",
-      "title": "Shifting Frontlines",
+      "title": "Line of Battle: Drift",
       "confidence": "High",
       "tone": ["strategic", "ominous"],
-      "text": "Recent engagements suggest the enemy is no longer reacting—they are anticipating. Predictive patterns remain unclear."
+      "text": "Engagement records indicate opposing forces are no longer merely reacting to pressure. Their deployments are arriving early, on the correct vectors, with unsettling consistency. No reliable predictive model has yet survived contact."
     },
     {
       "id": "strategic_logistical_drag",
       "category": "Strategic Observations",
-      "title": "Logistical Drag",
+      "title": "Munitorum Drag",
       "confidence": "Moderate",
       "tone": ["logistics", "attrition"],
-      "text": "Supply efficiency across the sector has degraded. Whether due to sabotage, misallocation, or simple attrition remains unconfirmed."
+      "text": "Requisition fulfilment and transit cadence across the war-zone have degraded beyond acceptable variance. The cause may be sabotage, bureaucratic diversion, simple attrition, or all three acting in concert. Quartermasters advise contingency rationing."
     },
     {
       "id": "strategic_overextension_risk",
       "category": "Strategic Observations",
-      "title": "Overextension Risk",
+      "title": "Overreach Advisory",
       "confidence": "Moderate",
       "tone": ["strategic", "warning"],
-      "text": "Command analysts warn that continued advances may be stretching available forces beyond sustainable limits."
+      "text": "Operational momentum is outpacing consolidation. Analysts warn that continued advances may be stretching available manpower, machine, and air cover beyond sustainable limits. Gains taken without garrison become invitations."
     },
     {
       "id": "strategic_unexpected_resistance",
       "category": "Strategic Observations",
-      "title": "Unexpected Resistance",
+      "title": "Resistance Beyond Estimate",
       "confidence": "Moderate",
       "tone": ["strategic", "threat"],
-      "text": "Opposition forces have displayed coordination inconsistent with prior intelligence assessments."
+      "text": "Opposition elements have demonstrated coordination and discipline inconsistent with prior assessments. This may indicate a competent guiding hand, a shared doctrine, or a common supply source previously unaccounted for."
     },
 
     {
       "id": "rumor_distorted_vox",
       "category": "Signals & Rumors",
-      "title": "Distorted Vox Traffic",
+      "title": "Vox-Lint on the Wire",
       "confidence": "Low",
       "tone": ["signals", "mystery"],
-      "text": "Encrypted vox-bursts of unknown origin have been detected. Translation attempts remain inconclusive."
+      "text": "Encrypted burst-traffic of uncertain origin has been detected bleeding into sanctioned frequencies. Machine-translation yields nonsense, hymnal fragments, and repeating numeric strings. No stable decrypt has been achieved."
     },
     {
       "id": "rumor_civilian_sightings",
       "category": "Signals & Rumors",
-      "title": "Civilian Sightings",
+      "title": "Refugee Flow Reports",
       "confidence": "Low",
       "tone": ["rumor", "movement"],
-      "text": "Unverified reports indicate increased civilian movement in contested regions—cause unknown."
+      "text": "Unverified accounts describe sudden civilian migration through contested routes. Motive is unclear: flight, forced relocation, false-flag manoeuvre, or opportunistic looting. Local authorities deny all knowledge (as expected)."
     },
     {
       "id": "rumor_echoes_in_warp",
       "category": "Signals & Rumors",
-      "title": "Echoes in the Warp",
+      "title": "Choir Dissonance",
       "confidence": "Low",
       "tone": ["warp", "omens"],
-      "text": "Astropathic choirs report recurring disturbances, though no direct manifestations have occurred."
+      "text": "Astropathic choirs report recurring distortion during long-range sends—tones out of sequence, replies arriving before messages depart, and occasional ‘echo’ voices not belonging to any registered soul. No direct manifestation confirmed."
     },
     {
       "id": "rumor_false_silence",
       "category": "Signals & Rumors",
-      "title": "False Silence",
+      "title": "Stations Gone Dark",
       "confidence": "Low",
       "tone": ["signals", "sabotage"],
-      "text": "Several auspex stations have gone quiet. Whether destroyed or intentionally dark is unknown."
+      "text": "Multiple auspex relays have ceased reporting without the expected emergency beacons. They may be destroyed, masked, seized, or intentionally blacked out by their own crews. The silence is notable precisely because it is tidy."
     },
 
     {
       "id": "threat_weapons_activation",
       "category": "Threat Indicators",
-      "title": "Weapons Activation Signatures",
+      "title": "Dormant Systems Stirring",
       "confidence": "Moderate",
       "tone": ["threat", "ancient"],
-      "text": "Energy readings suggest dormant systems may have been brought online somewhere in the sector."
+      "text": "Energy signatures consistent with large-scale activation have been recorded somewhere in-theatre. Pattern matches are inconclusive: industrial start-up, voidshield cycling, relic-grade weapon systems, or arcane power transfer. Auspex triangulation remains incomplete."
     },
     {
       "id": "threat_force_concentration",
       "category": "Threat Indicators",
-      "title": "Force Concentration",
+      "title": "Massing in the Shadows",
       "confidence": "Moderate",
       "tone": ["threat", "movement"],
-      "text": "Enemy troop movements imply a massing of strength—location and intent remain unclear."
+      "text": "Movement logs and scattered sightings imply a concentration of hostile strength beyond normal raiding scale. Location remains uncertain; intent remains worse. Expect a strike where you least want to spare defenders."
     },
     {
       "id": "threat_unidentified_commander",
       "category": "Threat Indicators",
-      "title": "Unidentified Commander",
+      "title": "The Hand Behind It",
       "confidence": "Low",
       "tone": ["threat", "intel_gap"],
-      "text": "Multiple engagements reference a single coordinating presence. No confirmed identity."
+      "text": "After-action reports reference a consistent coordinating presence—callsigns, symbols, or doctrine—but no confirmed identity. Whether this is a single commander, a council, or a myth being spread for morale effect is undetermined."
     },
     {
       "id": "threat_unusual_loss_ratios",
       "category": "Threat Indicators",
-      "title": "Unusual Loss Ratios",
+      "title": "Casualty Ratios: Anomalous",
       "confidence": "Moderate",
       "tone": ["threat", "anomaly"],
-      "text": "Casualty reports indicate outcomes deviating significantly from projected combat models."
+      "text": "Casualty and materiel-loss outcomes deviate sharply from predictive combat models. Either your intelligence is incomplete, their capabilities are underestimated, or your reporting has been ‘adjusted’ somewhere up-chain."
     },
 
     {
       "id": "opportunity_temporary_lapse",
       "category": "Opportunities & Openings",
-      "title": "Temporary Lapse",
+      "title": "Brief Window",
       "confidence": "Moderate",
       "tone": ["opportunity", "timing"],
-      "text": "Surveillance suggests a brief reduction in enemy readiness. Duration unknown."
+      "text": "Recon indicates a short-lived reduction in enemy readiness—shift rotation, fuel shortage, leadership turnover, or simple exhaustion. Duration unknown; opportunity cost certain. Strike fast or not at all."
     },
     {
       "id": "opportunity_disputed_authority",
       "category": "Opportunities & Openings",
-      "title": "Disputed Authority",
+      "title": "Rival Claimants",
       "confidence": "Low",
       "tone": ["opportunity", "discord"],
-      "text": "Intercepted communications hint at internal disagreement among hostile leadership elements."
+      "text": "Intercepts hint at internal disagreement among hostile leadership elements—conflicting orders, overlapping jurisdictions, or competing agendas. Exploit the confusion, but assume it may be staged to bait overcommitment."
     },
     {
       "id": "opportunity_abandoned_assets",
       "category": "Opportunities & Openings",
-      "title": "Abandoned Assets",
+      "title": "Spoils Unsecured",
       "confidence": "Moderate",
       "tone": ["opportunity", "loot"],
-      "text": "Recon flights report potential materiel left unsecured following recent battles."
+      "text": "Survey flights and ground scouts report materiel left unclaimed after recent fighting: crates, fuel, munitions, cogitator stacks, even wounded vehicles. Whether this is negligence or a trap is unknown—either way, it is there."
     },
     {
       "id": "opportunity_unclaimed_ground",
       "category": "Opportunities & Openings",
-      "title": "Unclaimed Ground",
+      "title": "Empty Ground, Valuable Ground",
       "confidence": "Moderate",
       "tone": ["opportunity", "expansion"],
-      "text": "Several regions appear strategically valuable yet remain uncontested—for now."
+      "text": "Several strategically relevant zones remain oddly uncontested—no pickets, no patrols, no formal claims. This may be oversight, fear, or deliberate vacuum meant to draw forces into a kill-box. Proceed with measured aggression."
     },
 
     {
       "id": "internal_command_friction",
       "category": "Internal Pressures",
-      "title": "Command Friction",
+      "title": "Doctrine Clash",
       "confidence": "High",
       "tone": ["internal", "political"],
-      "text": "Differing strategic doctrines among allied forces have slowed unified response."
+      "text": "Allied detachments are operating under incompatible doctrines and command assumptions. Orders are followed ‘as written’ rather than ‘as intended,’ delaying unified response. The enemy benefits from your paperwork."
     },
     {
       "id": "internal_morale_strain",
       "category": "Internal Pressures",
-      "title": "Morale Strain",
+      "title": "Morale Erosion",
       "confidence": "High",
       "tone": ["internal", "attrition"],
-      "text": "Extended operations are beginning to impact force morale across multiple detachments."
+      "text": "Extended operations are grinding down resolve across multiple units. Fatigue errors are increasing; discipline incidents are rising; prayers are getting shorter. Rotate when possible—execute when necessary."
     },
     {
       "id": "internal_questioned_intelligence",
       "category": "Internal Pressures",
-      "title": "Questioned Intelligence",
+      "title": "Cogitators Disputed",
       "confidence": "Moderate",
       "tone": ["internal", "doubt"],
-      "text": "Recent outcomes have led some commanders to doubt the accuracy of central intelligence."
+      "text": "Recent outcomes have led several commanders to question central intelligence. Some blame faulty augurs; others blame deliberate omission. Either way, trust is becoming a resource you cannot requisition."
     },
     {
       "id": "internal_resource_conflicts",
       "category": "Internal Pressures",
-      "title": "Resource Prioritization Conflicts",
+      "title": "Requisition Collision",
       "confidence": "High",
       "tone": ["internal", "logistics"],
-      "text": "Multiple high-priority requests now exceed available support capacity."
+      "text": "High-priority demands now exceed available lift, stock, and labour. Someone will go without—possibly you. Expect political manoeuvring, reallocation orders, and ‘temporary’ confiscations by whoever has the biggest stamp."
     },
 
     {
       "id": "omen_ill_omened_victory",
       "category": "Omens & Portents",
-      "title": "Ill-Omened Victory",
+      "title": "Victory With a Price Tag",
       "confidence": "Low",
       "tone": ["omens", "grim"],
-      "text": "Recent success has been marked by anomalous casualties and unexplained system failures."
+      "text": "A recent success was accompanied by anomalous casualties, machine-spirits refusing commands, and failures that feel too synchronized to be chance. Priests offer prayers; veterans offer silence."
     },
     {
       "id": "omen_pattern_repetition",
       "category": "Omens & Portents",
-      "title": "Pattern Repetition",
+      "title": "The Same Battle Twice",
       "confidence": "Low",
       "tone": ["omens", "pattern"],
-      "text": "Analysts note recurring tactical motifs across unrelated engagements."
+      "text": "Analysts have noted a repeating tactical motif across unrelated engagements—similar feints, identical timings, familiar symbols in the smoke. Either someone is learning from you, or someone has been teaching them."
     },
     {
       "id": "omen_lingering_aftermath",
       "category": "Omens & Portents",
-      "title": "Lingering Aftermath",
+      "title": "Fields That Won’t Stay Quiet",
       "confidence": "Low",
       "tone": ["omens", "aftermath"],
-      "text": "Battlefields thought cleared continue to generate intermittent alerts."
+      "text": "Battlefields declared cleared continue to trigger intermittent alerts: auspex pings, missing patrols, vox clicks, and motion where there should be none. The dead may be restless—or the living are simply patient."
     },
     {
       "id": "omen_the_silence",
       "category": "Omens & Portents",
-      "title": "The Silence",
+      "title": "No Word From Above",
       "confidence": "Low",
       "tone": ["omens", "uncertainty"],
-      "text": "No guidance has been received through expected channels. Interpretations vary."
+      "text": "Expected guidance through official channels has not arrived. Interpretations vary: disruption, censorship, bureaucratic delay, or a deliberate test. The absence of orders will be filled by someone’s initiative."
     },
 
     {
       "id": "misinfo_conflicting_reports",
       "category": "Misinformation & Doubt",
-      "title": "Conflicting Reports",
+      "title": "Reports in Collision",
       "confidence": "Low",
       "tone": ["misinfo", "contradiction"],
-      "text": "Multiple sources describe the same event in mutually exclusive terms."
+      "text": "Multiple sources describe the same event in mutually exclusive terms. Either witnesses are unreliable, records have been altered, or the truth is being split into convenient shapes for different audiences."
     },
     {
       "id": "misinfo_delayed_transmissions",
       "category": "Misinformation & Doubt",
-      "title": "Delayed Transmissions",
+      "title": "Packets Out of Sequence",
       "confidence": "Low",
       "tone": ["misinfo", "tamper_risk"],
-      "text": "Several data-packets arrived outside expected timeframes, raising authenticity concerns."
+      "text": "Several data-bursts arrived outside expected time windows, some bearing correct seals and incorrect content. Authenticity concerns are noted; corrective action is pending; casualties will not wait."
     },
     {
       "id": "misinfo_propaganda_spike",
       "category": "Misinformation & Doubt",
-      "title": "Propaganda Spike",
+      "title": "Morale Vox Surge",
       "confidence": "Moderate",
       "tone": ["misinfo", "psych_war"],
-      "text": "An increase in morale broadcasts has been detected across hostile channels."
+      "text": "A spike in morale transmissions has been detected across multiple channels—some crude, some disturbingly tailored. Whether it is enemy psy-ops, allied overreach, or a third party sowing chaos remains unclear."
     },
     {
       "id": "misinfo_overconfidence_warning",
       "category": "Misinformation & Doubt",
-      "title": "Overconfidence Warning",
+      "title": "Confidence Is a Weakness",
       "confidence": "High",
       "tone": ["misinfo", "warning"],
-      "text": "Analysts caution against recent assumptions of enemy collapse."
+      "text": "Analysts caution against assumptions of imminent enemy collapse. Overconfidence is not bravery; it is an exploitable pattern. If you believe the war is already won, you will stop watching for the knife."
     }
   ]
 }
