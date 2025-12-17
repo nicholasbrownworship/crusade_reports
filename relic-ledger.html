@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crusade Relic Ledger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --panel: #121826;
+      --panel2: #0e1422;
+      --ink: #e7e3d8;
+      --muted: #9b9488;
+      --accent: #d1a14b;
+      --border: #2a3144;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: radial-gradient(circle at top, #141a2e, #07080b 60%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 32px;
+    }
+
+    .wrap { max-width: 980px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+
+    .sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+      max-width: 70ch;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 14px 0 22px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      background: rgba(18, 24, 38, 0.7);
+      border-radius: var(--radius);
+    }
+
+    input, select, button {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .pill {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(14, 20, 34, 0.7);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    button {
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    button:hover { filter: brightness(1.08); }
+
+    .status {
+      margin: 10px 0 18px;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      border: 1px dashed var(--border);
+      background: rgba(6, 8, 15, 0.55);
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+    .status strong { color: var(--ink); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      grid-column: span 12;
+      border: 1px solid var(--border);
+      background: rgba(18, 24, 38, 0.75);
+      border-radius: var(--radius);
+      padding: 16px 16px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 840px) {
+      .card { grid-column: span 6; }
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(209,161,75,0.10), transparent 40%);
+      pointer-events: none;
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .name {
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-size: 1.05rem;
+      color: var(--ink);
+      margin: 0;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1a1306;
+      background: linear-gradient(180deg, #d1a14b, #b88a3a);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .meta strong { color: var(--ink); font-weight: 600; }
+
+    .note {
+      margin: 0;
+      line-height: 1.55;
+      font-size: 0.95rem;
+      color: #d6d0c3;
+    }
+
+    .footer {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .smallbtn {
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+    }
+
+    .empty {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: rgba(6, 8, 15, 0.55);
+    }
+
+    code.k {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.8rem;
+      color: #cfc8ba;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Crusade Relic Ledger</h1>
+        <div class="sub">
+          Objects the war remembers. Power is irrelevant — names endure.
+        </div>
+      </div>
+      <div class="pill" id="countPill">Loading…</div>
+    </header>
+
+    <div class="toolbar">
+      <input id="q" type="search" placeholder="Search by relic name, bearer, location…" />
+      <select id="type">
+        <option value="all">All Types</option>
+        <option value="weapon">Weapon</option>
+        <option value="wargear">Wargear</option>
+        <option value="vehicle">Vehicle</option>
+        <option value="artifact">Artifact</option>
+      </select>
+      <button class="smallbtn" id="clearBtn">Clear</button>
+      <button class="smallbtn" id="reloadBtn" title="Reload relics.json">Reload</button>
+    </div>
+
+    <div class="status" id="statusBox">
+      <strong>Status:</strong> Attempting to load <code class="k">relics.json</code>…
+    </div>
+
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none;"></div>
+  </div>
+
+  <script>
+    // Fallback data so the page works immediately (even before you create relics.json)
+    const SAMPLE_RELICS = [
+      {
+        relic_id: "relic_001",
+        name: "Oathcutter",
+        type: "weapon",
+        current_bearer: "Intercessor Sergeant Kael",
+        first_recorded: "Battle for Aurum Refuge",
+        note: "This blade was raised in defiance after its bearer’s squad was wiped out, and it has not rested since."
+      },
+      {
+        relic_id: "relic_002",
+        name: "The Silent Engine",
+        type: "vehicle",
+        current_bearer: "Predator Annihilator ‘Vox-Null’",
+        first_recorded: "Engagement at Trinaxis Minor",
+        note: "Its auspex arrays failed early in the campaign, yet it continues to find targets no one else can see."
+      }
+    ];
+
+    let RELICS = [];
+    let SOURCE_NOTE = "";
+
+    const elGrid = document.getElementById("grid");
+    const elEmpty = document.getElementById("empty");
+    const elStatus = document.getElementById("statusBox");
+    const elCount = document.getElementById("countPill");
+    const elQ = document.getElementById("q");
+    const elType = document.getElementById("type");
+    const elClear = document.getElementById("clearBtn");
+    const elReload = document.getElementById("reloadBtn");
+
+    function escapeHtml(s) {
+      return String(s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalize(s) {
+      return String(s ?? "").toLowerCase().trim();
+    }
+
+    function matches(entry, q, type) {
+      if (type !== "all" && entry.type !== type) return false;
+
+      if (!q) return true;
+      const blob = [
+        entry.name,
+        entry.type,
+        entry.current_bearer,
+        entry.first_recorded,
+        entry.note
+      ].map(normalize).join(" | ");
+
+      return blob.includes(q);
+    }
+
+    function render() {
+      const q = normalize(elQ.value);
+      const type = elType.value;
+
+      const filtered = RELICS.filter(e => matches(e, q, type));
+
+      elGrid.innerHTML = "";
+      elEmpty.style.display = "none";
+
+      elCount.textContent = `${filtered.length} / ${RELICS.length} recorded`;
+
+      if (SOURCE_NOTE) {
+        elStatus.innerHTML = SOURCE_NOTE;
+      }
+
+      if (filtered.length === 0) {
+        elEmpty.style.display = "block";
+        elEmpty.textContent =
+          "No entries match your filters. Try clearing search/type, or add more relics.";
+        return;
+      }
+
+      for (const e of filtered) {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const name = escapeHtml(e.name || "Unnamed Record");
+        const typeLabel = escapeHtml(e.type || "artifact");
+        const bearer = escapeHtml(e.current_bearer || "Unassigned");
+        const first = escapeHtml(e.first_recorded || "Unrecorded");
+        const note = escapeHtml(e.note || "No note attached.");
+
+        card.innerHTML = `
+          <div class="topline">
+            <h2 class="name">${name}</h2>
+            <div class="tag">${typeLabel}</div>
+          </div>
+
+          <div class="meta">
+            <div><strong>Current Bearer:</strong> ${bearer}</div>
+            <div><strong>First Recorded:</strong> ${first}</div>
+          </div>
+
+          <p class="note">${note}</p>
+
+          <div class="footer">
+            <span><code class="k">${escapeHtml(e.relic_id || "")}</code></span>
+            <button class="smallbtn" data-copy="1">Copy JSON</button>
+          </div>
+        `;
+
+        card.querySelector('[data-copy="1"]').addEventListener("click", async () => {
+          try {
+            const json = JSON.stringify(e, null, 2);
+            await navigator.clipboard.writeText(json);
+            const btn = card.querySelector('[data-copy="1"]');
+            const old = btn.textContent;
+            btn.textContent = "Copied";
+            setTimeout(() => (btn.textContent = old), 850);
+          } catch (err) {
+            alert("Clipboard copy failed. Your browser may block it on file:// URLs.\n\nTip: host on GitHub Pages or run a local server.");
+          }
+        });
+
+        elGrid.appendChild(card);
+      }
+    }
+
+    function coerceArray(data) {
+      // Accept either:
+      // 1) { "relics": [ ... ] }
+      // 2) [ ... ]
+      if (Array.isArray(data)) return data;
+      if (data && Array.isArray(data.relics)) return data.relics;
+      return null;
+    }
+
+    async function loadRelics() {
+      SOURCE_NOTE = `<strong>Status:</strong> Loading <code class="k">relics.json</code>…`;
+      render();
+
+      try {
+        const res = await fetch("relics.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+
+        const data = await res.json();
+        const arr = coerceArray(data);
+        if (!arr) throw new Error("JSON shape not recognized");
+
+        RELICS = arr;
+        SOURCE_NOTE = `<strong>Status:</strong> Loaded <code class="k">relics.json</code>.`;
+      } catch (e) {
+        RELICS = SAMPLE_RELICS;
+        SOURCE_NOTE =
+          `<strong>Status:</strong> Could not load <code class="k">relics.json</code> (using embedded sample data). ` +
+          `When you’re ready, add a <code class="k">relics.json</code> file in the same folder.`;
+      }
+
+      // Light sorting: newest-ish first if relic_id uses timestamps, otherwise by name.
+      RELICS = [...RELICS].sort((a, b) => {
+        const ax = String(a.relic_id || "");
+        const bx = String(b.relic_id || "");
+        const an = normalize(a.name);
+        const bn = normalize(b.name);
+
+        const at = ax.match(/\d{10,}/)?.[0];
+        const bt = bx.match(/\d{10,}/)?.[0];
+        if (at && bt) return Number(bt) - Number(at);
+        return an.localeCompare(bn);
+      });
+
+      render();
+    }
+
+    elQ.addEventListener("input", render);
+    elType.addEventListener("change", render);
+
+    elClear.addEventListener("click", () => {
+      elQ.value = "";
+      elType.value = "all";
+      render();
+    });
+
+    elReload.addEventListener("click", loadRelics);
+
+    // boot
+    loadRelics();
+  </script>
+</body>
+</html>
