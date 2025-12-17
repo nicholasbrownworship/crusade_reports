@@ -1,8 +1,12 @@
 {
+  "relics": [
+{
   "relic_id": "relic_1765998580496",
   "name": "test 2",
   "type": "weapon",
   "current_bearer": "this is a test",
   "first_recorded": "testing",
   "note": "this is a test"
+}
+  ]
 }
