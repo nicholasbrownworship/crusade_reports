@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Crusade Intel — Viewer</title>
+  <meta name="color-scheme" content="dark" />
+
+  <style>
+    :root{
+      --bg0:#07080b; --bg1:#0b0e14;
+      --ink:#e9e6dc; --muted:#b7b1a2; --dim:#7d776b;
+      --gold:#d1a14b; --red:#cc3b3b; --green:#3fbf7f; --blue:#4aa6ff;
+      --panel: rgba(14, 16, 24, 0.78);
+      --panel2: rgba(12, 14, 20, 0.55);
+      --line: rgba(209, 161, 75, 0.18);
+      --shadow: 0 18px 55px rgba(0,0,0,0.55);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 500px at 20% 10%, rgba(209,161,75,0.10), transparent 60%),
+        radial-gradient(800px 600px at 70% 20%, rgba(74,166,255,0.08), transparent 60%),
+        radial-gradient(700px 600px at 50% 80%, rgba(63,191,127,0.06), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 28px 18px 60px; }
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom: 14px;
+      align-items:flex-start;
+    }
+
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .sub{ color: var(--muted); font-size: 13px; line-height: 1.4; max-width: 70ch; }
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      padding: 14px;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom: 12px;
+    }
+
+    .pill{
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid rgba(209,161,75,0.14);
+      background: rgba(0,0,0,0.18);
+      padding: 6px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      white-space:nowrap;
+    }
+
+    .grid{ display:grid; grid-template-columns: 1fr; gap: 12px; }
+
+    .card{
+      background: var(--panel2);
+      border: 1px solid rgba(209,161,75,0.14);
+      border-radius: 16px;
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(550px 120px at 0% 0%, rgba(209,161,75,0.10), transparent 60%),
+        radial-gradient(500px 160px at 100% 0%, rgba(74,166,255,0.08), transparent 60%);
+      pointer-events:none;
+    }
+    .card > *{ position:relative; }
+
+    .cardhead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom: 10px;
+    }
+
+    .badge{
+      font-size: 11px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid rgba(209,161,75,0.18);
+      background: rgba(255,255,255,0.03);
+      padding: 6px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .dot{ width:8px; height:8px; border-radius: 999px; background: var(--gold); box-shadow: 0 0 0 2px rgba(209,161,75,0.18); }
+    .dot.low{ background: var(--dim); box-shadow: 0 0 0 2px rgba(125,119,107,0.20); }
+    .dot.mod{ background: var(--gold); }
+    .dot.high{ background: var(--green); box-shadow: 0 0 0 2px rgba(63,191,127,0.20); }
+
+    .ctitle{ margin:0; font-size: 18px; letter-spacing: 0.2px; }
+    .ctext{ margin: 10px 0 0; line-height: 1.6; font-size: 15px; color: var(--ink); }
+
+    .note{ margin-top:10px; color: var(--muted); font-size: 13px; line-height:1.45; }
+
+    .focus{
+      outline: 2px solid rgba(74,166,255,0.55);
+      box-shadow: 0 0 0 7px rgba(74,166,255,0.10), var(--shadow);
+    }
+
+    .small{ font-size: 12px; color: var(--muted); line-height:1.45; }
+
+    /* projector friendly: make it breathe */
+    @media (min-width: 1000px){
+      .card{ padding: 18px; }
+      .ctitle{ font-size: 19px; }
+      .ctext{ font-size: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Crusade Intelligence Briefing</h1>
+        <div class="sub">Pinned intel only. Updates live from the GM screen running in another tab/window.</div>
+      </div>
+      <div class="pill" id="status">Waiting for GM…</div>
+    </header>
+
+    <section class="panel">
+      <div class="row">
+        <div class="small" id="subtitle"></div>
+        <div class="pill" id="updated">Updated: —</div>
+      </div>
+      <div class="grid" id="list"></div>
+    </section>
+  </div>
+
+<script>
+(() => {
+  const DECK_URL = "./briefing_deck.json";
+
+  // Shared keys (GM writes these; Viewer reads them)
+  const LS = {
+    viewerState: "crusadeIntel_viewer_state_v1"
+  };
+
+  // Broadcast channel for instant updates (same origin)
+  const CHANNEL_NAME = "crusadeIntel_channel_v1";
+
+  const elStatus = document.getElementById("status");
+  const elUpdated = document.getElementById("updated");
+  const elSubtitle = document.getElementById("subtitle");
+  const elList = document.getElementById("list");
+
+  let deck = null;
+
+  function escapeHtml(str){
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function dotClass(conf){
+    const c = (conf || "").toLowerCase();
+    if(c.includes("high")) return "high";
+    if(c.includes("mod")) return "mod";
+    return "low";
+  }
+
+  function statusLabel(status){
+    switch((status||"").toLowerCase()){
+      case "ongoing": return "Ongoing";
+      case "resolved": return "Resolved";
+      case "false": return "Misinformation";
+      default: return "Pinned";
+    }
+  }
+
+  function readViewerState(){
+    try{
+      const raw = localStorage.getItem(LS.viewerState);
+      if(!raw) return null;
+      return JSON.parse(raw);
+    }catch(e){
+      return null;
+    }
+  }
+
+  function render(state){
+    if(!state){
+      elStatus.textContent = "Waiting for GM…";
+      elUpdated.textContent = "Updated: —";
+      elSubtitle.textContent = "";
+      elList.innerHTML = `<div class="card"><div class="small">No pinned intel yet. (Open the GM page and pin something.)</div></div>`;
+      return;
+    }
+
+    elStatus.textContent = "Live";
+    const stamp = state.updatedAt ? new Date(state.updatedAt).toLocaleString() : "—";
+    elUpdated.textContent = `Updated: ${stamp}`;
+    elSubtitle.textContent = state.subtitle ? state.subtitle : "";
+
+    const pinned = Array.isArray(state.pinned) ? state.pinned : [];
+    const focusId = state.focusCardId || "";
+
+    elList.innerHTML = "";
+    if(pinned.length === 0){
+      elList.innerHTML = `<div class="card"><div class="small">No pinned intel yet.</div></div>`;
+      return;
+    }
+
+    for(const p of pinned){
+      const card = (deck?.cards || []).find(c => c.id === p.card_id);
+      if(!card) continue;
+
+      const wrap = document.createElement("div");
+      wrap.className = "card" + (card.id === focusId ? " focus" : "");
+      wrap.innerHTML = `
+        <div class="cardhead">
+          <div>
+            <div class="badge">
+              <span class="dot ${dotClass(card.confidence)}"></span>
+              <span>${escapeHtml(card.category)}</span>
+              <span style="opacity:.65">•</span>
+              <span>${escapeHtml(card.confidence || "Low")} Confidence</span>
+            </div>
+            <h3 class="ctitle">${escapeHtml(card.title)}</h3>
+          </div>
+          <div class="pill">${escapeHtml(statusLabel(p.status))}</div>
+        </div>
+
+        <p class="ctext">${escapeHtml(card.text)}</p>
+
+        ${p.note ? `<div class="note"><span class="pill">GM Note</span> ${escapeHtml(p.note)}</div>` : ``}
+      `;
+      elList.appendChild(wrap);
+    }
+  }
+
+  async function init(){
+    try{
+      const dRes = await fetch(DECK_URL, { cache: "no-store" });
+      if(!dRes.ok) throw new Error(`Failed to load deck (${dRes.status})`);
+      deck = await dRes.json();
+    }catch(err){
+      elStatus.textContent = "Error";
+      elList.innerHTML = `<div class="card"><div class="small" style="color: var(--red);">${escapeHtml(err.message || String(err))}</div></div>`;
+      return;
+    }
+
+    // First render from localStorage (if GM already published)
+    render(readViewerState());
+
+    // BroadcastChannel: instant updates
+    if("BroadcastChannel" in window){
+      const bc = new BroadcastChannel(CHANNEL_NAME);
+      bc.onmessage = (ev) => {
+        if(ev?.data?.type === "viewer_state"){
+          render(ev.data.state);
+        }
+      };
+    }
+
+    // localStorage event fallback (fires in other tabs)
+    window.addEventListener("storage", (e) => {
+      if(e.key === LS.viewerState){
+        render(readViewerState());
+      }
+    });
+
+    // Safety poll (covers edge cases)
+    setInterval(() => {
+      render(readViewerState());
+    }, 2500);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
