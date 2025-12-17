@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Crusade Intelligence Briefings</title>
+  <meta name="color-scheme" content="dark" />
+
+  <style>
+    :root{
+      --bg0:#07080b;
+      --bg1:#0b0e14;
+      --ink:#e9e6dc;
+      --muted:#b7b1a2;
+      --dim:#7d776b;
+      --gold:#d1a14b;
+      --red:#cc3b3b;
+      --green:#3fbf7f;
+      --blue:#4aa6ff;
+      --panel: rgba(14, 16, 24, 0.78);
+      --panel2: rgba(12, 14, 20, 0.55);
+      --line: rgba(209, 161, 75, 0.18);
+      --shadow: 0 18px 55px rgba(0,0,0,0.55);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 500px at 20% 10%, rgba(209,161,75,0.10), transparent 60%),
+        radial-gradient(800px 600px at 70% 20%, rgba(74,166,255,0.08), transparent 60%),
+        radial-gradient(700px 600px at 50% 80%, rgba(63,191,127,0.06), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    header{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom: 18px;
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .sub{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap:10px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+      border-bottom: 1px solid rgba(209,161,75,0.14);
+    }
+
+    .controls .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 180px;
+    }
+
+    label{
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+    }
+
+    select, input[type="number"]{
+      background: rgba(255,255,255,0.04);
+      color: var(--ink);
+      border: 1px solid rgba(209,161,75,0.18);
+      border-radius: 12px;
+      padding: 10px 10px;
+      outline: none;
+    }
+
+    .btnrow{
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+
+    button{
+      appearance:none;
+      border: 1px solid rgba(209,161,75,0.25);
+      background: rgba(209,161,75,0.10);
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing: 0.3px;
+      transition: transform .08s ease, background .12s ease, border-color .12s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    button:hover{ background: rgba(209,161,75,0.16); border-color: rgba(209,161,75,0.35); }
+    button:active{ transform: translateY(1px); }
+
+    button.primary{
+      background: rgba(74,166,255,0.12);
+      border-color: rgba(74,166,255,0.35);
+    }
+    button.primary:hover{
+      background: rgba(74,166,255,0.18);
+      border-color: rgba(74,166,255,0.5);
+    }
+
+    button.danger{
+      background: rgba(204,59,59,0.12);
+      border-color: rgba(204,59,59,0.35);
+    }
+    button.danger:hover{
+      background: rgba(204,59,59,0.18);
+      border-color: rgba(204,59,59,0.5);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    @media (max-width: 960px){
+      .controls{ grid-template-columns: 1fr 1fr; }
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: var(--panel2);
+      border: 1px solid rgba(209,161,75,0.14);
+      border-radius: 16px;
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(550px 120px at 0% 0%, rgba(209,161,75,0.10), transparent 60%),
+        radial-gradient(500px 160px at 100% 0%, rgba(74,166,255,0.08), transparent 60%);
+      pointer-events:none;
+    }
+
+    .card > *{ position:relative; }
+
+    .cardhead{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom: 10px;
+    }
+
+    .badge{
+      font-size: 11px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid rgba(209,161,75,0.18);
+      background: rgba(255,255,255,0.03);
+      padding: 6px 9px;
+      border-radius: 999px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .dot{ width:8px; height:8px; border-radius: 999px; background: var(--gold); box-shadow: 0 0 0 2px rgba(209,161,75,0.18); }
+    .dot.low{ background: var(--dim); box-shadow: 0 0 0 2px rgba(125,119,107,0.20); }
+    .dot.mod{ background: var(--gold); }
+    .dot.high{ background: var(--green); box-shadow: 0 0 0 2px rgba(63,191,127,0.20); }
+
+    .ctitle{
+      margin:0;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+    }
+    .ctext{
+      margin: 8px 0 0;
+      color: var(--ink);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .meta{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .meta .left{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .pill{
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid rgba(209,161,75,0.14);
+      background: rgba(0,0,0,0.18);
+      padding: 6px 9px;
+      border-radius: 999px;
+    }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .rightcol .card{ height: 100%; }
+
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .small{
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.45;
+    }
+
+    .history{
+      margin-top: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height: 380px;
+      overflow:auto;
+      padding-right: 4px;
+    }
+
+    .hitem{
+      border: 1px solid rgba(209,161,75,0.12);
+      background: rgba(0,0,0,0.18);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .hitem .top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .hitem .top b{
+      font-size: 12px;
+      letter-spacing: 0.2px;
+    }
+    .hitem .time{
+      font-size: 11px;
+      color: var(--dim);
+      white-space:nowrap;
+    }
+    .hitem .desc{
+      margin-top:6px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.60);
+      border: 1px solid rgba(209,161,75,0.22);
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .16s ease, transform .16s ease;
+      font-size: 12px;
+      max-width: min(680px, calc(100vw - 26px));
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Crusade Intelligence Briefings</h1>
+        <div class="sub">
+          Draw 1–5 cards per turn. Mark as <span class="kbd">Ongoing</span>, <span class="kbd">Resolved</span>, or <span class="kbd">Misinformation</span>.
+          State persists locally in your browser.
+        </div>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="controls">
+        <div class="field">
+          <label for="count">Draw Count</label>
+          <input id="count" type="number" min="1" max="8" value="3" />
+        </div>
+
+        <div class="field">
+          <label for="category">Category Filter</label>
+          <select id="category">
+            <option value="__all__">All Categories</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="mode">Draw Mode</label>
+          <select id="mode">
+            <option value="unique">Unique (no repeats until deck exhausted)</option>
+            <option value="any">Any (repeats allowed)</option>
+          </select>
+        </div>
+
+        <div class="btnrow">
+          <button class="primary" id="drawBtn">Draw Briefing</button>
+          <button id="copyBtn">Copy Briefing</button>
+          <button class="danger" id="resetBtn">Reset Local State</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="leftcol stack">
+          <div class="card">
+            <div class="small" id="deckStatus">Loading deck…</div>
+          </div>
+
+          <div id="drawArea" class="stack"></div>
+        </div>
+
+        <div class="rightcol stack">
+          <div class="card">
+            <h3 class="ctitle" style="margin:0 0 6px;">Pinned / Status Board</h3>
+            <div class="small">Your “campaign turn” notes. These persist in localStorage.</div>
+            <div class="history" id="statusBoard"></div>
+          </div>
+
+          <div class="card">
+            <h3 class="ctitle" style="margin:0 0 6px;">Draw History</h3>
+            <div class="small">A quick log of what you drew recently.</div>
+            <div class="history" id="history"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+<script>
+(() => {
+  const DECK_URL = "./briefing_deck.json";
+  const LS = {
+    seen: "crusadeIntel_seen_v1",
+    history: "crusadeIntel_history_v1",
+    statuses: "crusadeIntel_statuses_v1" // { [cardId]: { status, note, updatedAt } }
+  };
+
+  const els = {
+    count: document.getElementById("count"),
+    category: document.getElementById("category"),
+    mode: document.getElementById("mode"),
+    drawBtn: document.getElementById("drawBtn"),
+    copyBtn: document.getElementById("copyBtn"),
+    resetBtn: document.getElementById("resetBtn"),
+    drawArea: document.getElementById("drawArea"),
+    deckStatus: document.getElementById("deckStatus"),
+    history: document.getElementById("history"),
+    statusBoard: document.getElementById("statusBoard"),
+    toast: document.getElementById("toast")
+  };
+
+  let DECK = null;
+
+  const nowStamp = () => new Date().toLocaleString();
+
+  function loadLS(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) return fallback;
+      return JSON.parse(raw);
+    }catch(e){
+      return fallback;
+    }
+  }
+  function saveLS(key, val){
+    localStorage.setItem(key, JSON.stringify(val));
+  }
+
+  function toast(msg){
+    els.toast.textContent = msg;
+    els.toast.classList.add("show");
+    window.clearTimeout(toast._t);
+    toast._t = window.setTimeout(() => els.toast.classList.remove("show"), 1400);
+  }
+
+  function confidenceDotClass(conf){
+    const c = (conf || "").toLowerCase();
+    if(c.includes("high")) return "high";
+    if(c.includes("mod")) return "mod";
+    return "low";
+  }
+
+  function ensureCategoryOptions(cards){
+    const cats = Array.from(new Set(cards.map(c => c.category))).sort();
+    // wipe existing options except first
+    while(els.category.options.length > 1) els.category.remove(1);
+    for(const cat of cats){
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      els.category.appendChild(opt);
+    }
+  }
+
+  function eligibleCards(cards){
+    const cat = els.category.value;
+    return cards.filter(c => (cat === "__all__" ? true : c.category === cat));
+  }
+
+  function drawCards(cards, count, mode){
+    const pool = eligibleCards(cards);
+    if(pool.length === 0) return [];
+
+    if(mode === "any"){
+      const out = [];
+      for(let i=0;i<count;i++){
+        out.push(pool[Math.floor(Math.random()*pool.length)]);
+      }
+      return out;
+    }
+
+    // unique mode: avoid repeats until exhausted
+    let seen = new Set(loadLS(LS.seen, []));
+    let unseen = pool.filter(c => !seen.has(c.id));
+
+    // if exhausted (for current filter), reset for that pool
+    if(unseen.length < count){
+      // Only reset seen for cards in the current eligible pool (so other categories keep their cycle)
+      for(const c of pool){ seen.delete(c.id); }
+      unseen = pool.slice();
+      toast("Deck cycle refreshed for current filter.");
+    }
+
+    // draw without replacement from unseen
+    const out = [];
+    const bag = unseen.slice();
+    for(let i=0;i<count && bag.length;i++){
+      const idx = Math.floor(Math.random()*bag.length);
+      out.push(bag.splice(idx,1)[0]);
+    }
+
+    // mark drawn as seen
+    for(const c of out) seen.add(c.id);
+    saveLS(LS.seen, Array.from(seen));
+    return out;
+  }
+
+  function renderDraw(cards){
+    els.drawArea.innerHTML = "";
+    if(!cards.length){
+      els.drawArea.innerHTML = `<div class="card"><div class="small">No cards available for the current filter.</div></div>`;
+      return;
+    }
+    for(const c of cards){
+      els.drawArea.appendChild(makeCardEl(c));
+    }
+  }
+
+  function statusLabel(status){
+    switch(status){
+      case "ongoing": return "Ongoing";
+      case "resolved": return "Resolved";
+      case "false": return "Misinformation";
+      default: return "Unmarked";
+    }
+  }
+
+  function makeCardEl(c){
+    const statuses = loadLS(LS.statuses, {});
+    const s = statuses[c.id]?.status || "";
+    const note = statuses[c.id]?.note || "";
+
+    const wrap = document.createElement("div");
+    wrap.className = "card";
+
+    wrap.innerHTML = `
+      <div class="cardhead">
+        <div>
+          <div class="badge">
+            <span class="dot ${confidenceDotClass(c.confidence)}"></span>
+            <span>${c.category}</span>
+            <span style="opacity:.65">•</span>
+            <span>${(c.confidence || "Low")} Confidence</span>
+          </div>
+          <h3 class="ctitle">${escapeHtml(c.title)}</h3>
+        </div>
+        <div class="pill" title="Current status">${statusLabel(s)}</div>
+      </div>
+
+      <p class="ctext">${escapeHtml(c.text)}</p>
+
+      <div class="meta">
+        <div class="left">
+          ${(c.tone || []).slice(0,4).map(t => `<span class="pill">#${escapeHtml(t)}</span>`).join("")}
+          ${note ? `<span class="pill" title="GM note">🗒 ${escapeHtml(note)}</span>` : ``}
+        </div>
+        <div class="actions">
+          <button data-act="pin">Pin</button>
+          <button data-act="ongoing">Ongoing</button>
+          <button data-act="resolved">Resolved</button>
+          <button data-act="false">Misinformation</button>
+          <button data-act="note">Add Note</button>
+        </div>
+      </div>
+    `;
+
+    wrap.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const act = btn.getAttribute("data-act");
+        if(act === "pin"){
+          setStatus(c.id, "ongoing", note || "");
+          toast("Pinned as Ongoing.");
+          renderStatusBoard();
+          return;
+        }
+        if(act === "note"){
+          const current = loadLS(LS.statuses, {})[c.id]?.note || "";
+          const next = prompt("GM note (short):", current);
+          if(next === null) return;
+          const st = loadLS(LS.statuses, {})[c.id]?.status || "";
+          setStatus(c.id, st, next.trim());
+          toast("Note saved.");
+          renderDraw(lastDraw);
+          renderStatusBoard();
+          return;
+        }
+
+        setStatus(c.id, act, note);
+        toast(`Marked: ${statusLabel(act)}.`);
+        renderDraw(lastDraw);
+        renderStatusBoard();
+      });
+    });
+
+    return wrap;
+  }
+
+  function setStatus(cardId, status, note){
+    const statuses = loadLS(LS.statuses, {});
+    statuses[cardId] = {
+      status: status || "",
+      note: (note || "").slice(0, 120),
+      updatedAt: Date.now()
+    };
+    saveLS(LS.statuses, statuses);
+  }
+
+  function clearStatus(cardId){
+    const statuses = loadLS(LS.statuses, {});
+    delete statuses[cardId];
+    saveLS(LS.statuses, statuses);
+  }
+
+  function renderStatusBoard(){
+    const statuses = loadLS(LS.statuses, {});
+    const items = Object.entries(statuses)
+      .map(([id, v]) => ({ id, ...v }))
+      .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+
+    els.statusBoard.innerHTML = "";
+    if(items.length === 0){
+      els.statusBoard.innerHTML = `<div class="small">No pinned/status items yet. Mark a card as Ongoing/Resolved/Misinformation.</div>`;
+      return;
+    }
+
+    for(const it of items){
+      const card = (DECK?.cards || []).find(c => c.id === it.id);
+      if(!card) continue;
+
+      const el = document.createElement("div");
+      el.className = "hitem";
+      el.innerHTML = `
+        <div class="top">
+          <b>${escapeHtml(card.title)}</b>
+          <span class="time">${new Date(it.updatedAt).toLocaleDateString()}</span>
+        </div>
+        <div class="desc">
+          <span class="pill">${statusLabel(it.status)}</span>
+          <span style="opacity:.6">•</span>
+          ${escapeHtml(card.category)}
+          ${it.note ? `<div style="margin-top:6px; color: var(--muted);">${escapeHtml(it.note)}</div>` : ``}
+          <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button data-sb="focus">Focus</button>
+            <button data-sb="clear">Clear</button>
+          </div>
+        </div>
+      `;
+
+      el.querySelector('[data-sb="focus"]').addEventListener("click", () => {
+        // draw the single card as a "focus" view
+        lastDraw = [card];
+        renderDraw(lastDraw);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        toast("Focused card.");
+      });
+
+      el.querySelector('[data-sb="clear"]').addEventListener("click", () => {
+        clearStatus(it.id);
+        renderStatusBoard();
+        toast("Cleared status.");
+      });
+
+      els.statusBoard.appendChild(el);
+    }
+  }
+
+  function renderHistory(){
+    const hist = loadLS(LS.history, []);
+    els.history.innerHTML = "";
+    if(hist.length === 0){
+      els.history.innerHTML = `<div class="small">No draws yet.</div>`;
+      return;
+    }
+
+    for(const h of hist.slice(0, 30)){
+      const el = document.createElement("div");
+      el.className = "hitem";
+      el.innerHTML = `
+        <div class="top">
+          <b>${escapeHtml(h.title)}</b>
+          <span class="time">${escapeHtml(h.time)}</span>
+        </div>
+        <div class="desc">${escapeHtml(h.category)} • ${escapeHtml(h.confidence || "Low")} Confidence</div>
+      `;
+      els.history.appendChild(el);
+    }
+  }
+
+  function appendHistory(drawn){
+    const hist = loadLS(LS.history, []);
+    for(const c of drawn){
+      hist.unshift({
+        id: c.id,
+        title: c.title,
+        category: c.category,
+        confidence: c.confidence,
+        time: nowStamp()
+      });
+    }
+    saveLS(LS.history, hist.slice(0, 120));
+    renderHistory();
+  }
+
+  function deckStatusLine(){
+    const total = (DECK?.cards || []).length;
+    const cat = els.category.value;
+    const pool = eligibleCards(DECK.cards);
+    const seen = new Set(loadLS(LS.seen, []));
+    const poolSeen = pool.filter(c => seen.has(c.id)).length;
+    const poolUnseen = pool.length - poolSeen;
+
+    const catText = (cat === "__all__") ? "All Categories" : cat;
+    return `Deck loaded: ${total} cards • Filter: ${catText} • In cycle: ${poolUnseen} unseen / ${pool.length} total (Unique mode)`;
+  }
+
+  function escapeHtml(str){
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  let lastDraw = [];
+
+  async function init(){
+    try{
+      const res = await fetch(DECK_URL, { cache: "no-store" });
+      if(!res.ok) throw new Error(`Failed to load ${DECK_URL} (${res.status})`);
+      DECK = await res.json();
+      ensureCategoryOptions(DECK.cards);
+
+      els.deckStatus.textContent = deckStatusLine();
+      renderHistory();
+      renderStatusBoard();
+
+      els.category.addEventListener("change", () => {
+        els.deckStatus.textContent = deckStatusLine();
+      });
+
+      els.drawBtn.addEventListener("click", () => {
+        const count = Math.max(1, Math.min(8, parseInt(els.count.value || "3", 10)));
+        els.count.value = String(count);
+
+        const mode = els.mode.value;
+        lastDraw = drawCards(DECK.cards, count, mode);
+        renderDraw(lastDraw);
+        appendHistory(lastDraw);
+        els.deckStatus.textContent = deckStatusLine();
+        toast(`Drew ${lastDraw.length} card(s).`);
+      });
+
+      els.copyBtn.addEventListener("click", async () => {
+        if(!lastDraw.length){
+          toast("Nothing to copy yet. Draw first.");
+          return;
+        }
+        const lines = [];
+        lines.push("CRUSADE INTELLIGENCE BRIEFING");
+        lines.push(`Generated: ${nowStamp()}`);
+        lines.push("");
+
+        for(const c of lastDraw){
+          lines.push(`[${c.category}] ${c.title} (${c.confidence || "Low"} Confidence)`);
+          lines.push(c.text);
+          lines.push("");
+        }
+
+        const txt = lines.join("\n");
+        try{
+          await navigator.clipboard.writeText(txt);
+          toast("Briefing copied to clipboard.");
+        }catch(e){
+          toast("Clipboard blocked. Select + copy manually.");
+          // fallback: prompt
+          prompt("Copy briefing:", txt);
+        }
+      });
+
+      els.resetBtn.addEventListener("click", () => {
+        if(!confirm("Reset local state? This clears seen-cycle, history, and statuses for this device/browser.")) return;
+        localStorage.removeItem(LS.seen);
+        localStorage.removeItem(LS.history);
+        localStorage.removeItem(LS.statuses);
+        lastDraw = [];
+        els.drawArea.innerHTML = "";
+        renderHistory();
+        renderStatusBoard();
+        els.deckStatus.textContent = deckStatusLine();
+        toast("Local state reset.");
+      });
+
+      // tiny hotkeys
+      window.addEventListener("keydown", (e) => {
+        if(e.key.toLowerCase() === "d") els.drawBtn.click();
+        if(e.key.toLowerCase() === "c") els.copyBtn.click();
+      });
+
+      toast("Deck ready. Press D to draw.");
+    }catch(err){
+      els.deckStatus.textContent = "Failed to load deck. Check that briefing_deck.json is in the same folder as index.html.";
+      els.drawArea.innerHTML = `
+        <div class="card">
+          <div class="small" style="color: var(--red);">
+            ${escapeHtml(err.message || String(err))}
+          </div>
+          <div class="small" style="margin-top:10px;">
+            GitHub Pages note: JSON fetch requires running via a server (Pages is fine). Opening index.html directly from your file system may block fetch.
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
