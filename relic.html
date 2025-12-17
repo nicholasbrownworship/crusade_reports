@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crusade Relic Ledger — Submission</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --panel: #121826;
+      --ink: #e7e3d8;
+      --muted: #9b9488;
+      --accent: #d1a14b;
+      --border: #2a3144;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: radial-gradient(circle at top, #141a2e, #07080b 60%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 32px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 30px 32px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.4rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 26px;
+    }
+
+    label {
+      display: block;
+      margin: 18px 0 6px;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: #0e1422;
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      font-size: 0.9rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #1b2236;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: linear-gradient(180deg, #d1a14b, #b88a3a);
+      color: #1a1306;
+      border: none;
+      font-weight: 600;
+    }
+
+    button:hover {
+      filter: brightness(1.08);
+    }
+
+    pre {
+      margin-top: 28px;
+      background: #06080f;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 0.75rem;
+      white-space: pre-wrap;
+      color: #cfc8ba;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Relic Ledger Entry</h1>
+    <div class="subtitle">
+      Record an object the war will remember. Power is irrelevant — names endure.
+    </div>
+
+    <label for="name">Relic Name</label>
+    <input id="name" placeholder="e.g. Oathcutter, The Silent Engine" />
+
+    <label for="type">Relic Type</label>
+    <select id="type">
+      <option value="weapon">Weapon</option>
+      <option value="wargear">Wargear</option>
+      <option value="vehicle">Vehicle</option>
+      <option value="artifact">Artifact</option>
+    </select>
+
+    <label for="bearer">Current Bearer</label>
+    <input id="bearer" placeholder="Unit, Character, or Vehicle designation" />
+
+    <label for="first_recorded">First Recorded</label>
+    <input id="first_recorded" placeholder="Battle name, location, or campaign round" />
+    <div class="hint">How the war first noticed this object.</div>
+
+    <label for="note">In-Universe Note</label>
+    <textarea id="note" placeholder="One sentence. Rumor, observation, or battlefield recollection."></textarea>
+
+    <div class="actions">
+      <button onclick="clearForm()">Clear</button>
+      <button class="primary" onclick="generateJSON()">Generate Entry</button>
+    </div>
+
+    <pre id="output">// Generated JSON will appear here</pre>
+  </div>
+
+  <script>
+    function generateJSON() {
+      const entry = {
+        relic_id: "relic_" + Date.now(),
+        name: document.getElementById("name").value.trim(),
+        type: document.getElementById("type").value,
+        current_bearer: document.getElementById("bearer").value.trim(),
+        first_recorded: document.getElementById("first_recorded").value.trim(),
+        note: document.getElementById("note").value.trim()
+      };
+
+      document.getElementById("output").textContent =
+        JSON.stringify(entry, null, 2);
+    }
+
+    function clearForm() {
+      ["name","bearer","first_recorded","note"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("output").textContent =
+        "// Generated JSON will appear here";
+    }
+  </script>
+
+</body>
+</html>
