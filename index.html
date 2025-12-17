@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Crusade Intelligence Briefings</title>
+  <title>Crusade Intelligence Briefings (GM)</title>
   <meta name="color-scheme" content="dark" />
 
   <style>
@@ -13,11 +13,13 @@
       --ink:#e9e6dc;
       --muted:#b7b1a2;
       --dim:#7d776b;
+
       --gold:#d1a14b;
       --red:#cc3b3b;
       --green:#3fbf7f;
       --blue:#4aa6ff;
-      --panel: rgba(14, 16, 24, 0.78);
+
+      --panel: rgba(10, 12, 18, 0.72);
       --panel2: rgba(12, 14, 20, 0.55);
       --line: rgba(209, 161, 75, 0.18);
       --shadow: 0 18px 55px rgba(0,0,0,0.55);
@@ -27,7 +29,7 @@
     *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       color: var(--ink);
       background:
         radial-gradient(900px 500px at 20% 10%, rgba(209,161,75,0.10), transparent 60%),
@@ -38,11 +40,7 @@
       overflow-x:hidden;
     }
 
-    .wrap{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 28px 18px 60px;
-    }
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 28px 18px 60px; }
 
     header{
       display:flex;
@@ -53,11 +51,7 @@
       margin-bottom: 18px;
     }
 
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
+    .title{ display:flex; flex-direction:column; gap:6px; }
 
     h1{
       margin:0;
@@ -69,6 +63,7 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.4;
+      max-width: 78ch;
     }
 
     .panel{
@@ -81,7 +76,7 @@
 
     .controls{
       display:grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
       gap:10px;
       padding: 14px;
       background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
@@ -92,7 +87,7 @@
       display:flex;
       flex-direction:column;
       gap:6px;
-      min-width: 180px;
+      min-width: 160px;
     }
 
     label{
@@ -102,7 +97,7 @@
       letter-spacing: 0.9px;
     }
 
-    select, input[type="number"]{
+    select, input[type="number"], input[type="text"]{
       background: rgba(255,255,255,0.04);
       color: var(--ink);
       border: 1px solid rgba(209,161,75,0.18);
@@ -161,7 +156,7 @@
       padding: 14px;
     }
 
-    @media (max-width: 960px){
+    @media (max-width: 980px){
       .controls{ grid-template-columns: 1fr 1fr; }
       .grid{ grid-template-columns: 1fr; }
     }
@@ -207,6 +202,7 @@
       display:inline-flex;
       gap:8px;
       align-items:center;
+      flex-wrap:wrap;
     }
 
     .dot{ width:8px; height:8px; border-radius: 999px; background: var(--gold); box-shadow: 0 0 0 2px rgba(209,161,75,0.18); }
@@ -214,17 +210,8 @@
     .dot.mod{ background: var(--gold); }
     .dot.high{ background: var(--green); box-shadow: 0 0 0 2px rgba(63,191,127,0.20); }
 
-    .ctitle{
-      margin:0;
-      font-size: 16px;
-      letter-spacing: 0.2px;
-    }
-    .ctext{
-      margin: 8px 0 0;
-      color: var(--ink);
-      line-height: 1.55;
-      font-size: 14px;
-    }
+    .ctitle{ margin:0; font-size: 16px; letter-spacing: 0.2px; }
+    .ctext{ margin: 8px 0 0; color: var(--ink); line-height: 1.55; font-size: 14px; }
 
     .meta{
       margin-top: 12px;
@@ -249,27 +236,18 @@
       background: rgba(0,0,0,0.18);
       padding: 6px 9px;
       border-radius: 999px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
     }
 
-    .actions{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
 
     .rightcol .card{ height: 100%; }
 
-    .stack{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
+    .stack{ display:flex; flex-direction:column; gap:10px; }
 
-    .small{
-      font-size: 12px;
-      color: var(--muted);
-      line-height:1.45;
-    }
+    .small{ font-size: 12px; color: var(--muted); line-height:1.45; }
 
     .history{
       margin-top: 10px;
@@ -346,10 +324,11 @@
   <div class="wrap">
     <header>
       <div class="title">
-        <h1>Crusade Intelligence Briefings</h1>
+        <h1>Crusade Intelligence Briefings (GM)</h1>
         <div class="sub">
-          Draw 1–5 cards per turn. Mark as <span class="kbd">Ongoing</span>, <span class="kbd">Resolved</span>, or <span class="kbd">Misinformation</span>.
-          State persists locally in your browser.
+          Use this as your switcher. Open <span class="kbd">viewer.html</span> on the projector.
+          Pins/status updates publish live to the viewer tab.
+          Hotkeys: <span class="kbd">D</span> draw, <span class="kbd">C</span> copy.
         </div>
       </div>
     </header>
@@ -376,9 +355,15 @@
           </select>
         </div>
 
+        <div class="field">
+          <label for="viewerSubtitle">Viewer Subtitle</label>
+          <input id="viewerSubtitle" type="text" placeholder="Optional line shown on projector…" />
+        </div>
+
         <div class="btnrow">
           <button class="primary" id="drawBtn">Draw Briefing</button>
           <button id="copyBtn">Copy Briefing</button>
+          <button id="pushBtn" title="Force-push current pinned board to viewer">Push to Viewer</button>
           <button class="danger" id="resetBtn">Reset Local State</button>
         </div>
       </div>
@@ -395,7 +380,7 @@
         <div class="rightcol stack">
           <div class="card">
             <h3 class="ctitle" style="margin:0 0 6px;">Pinned / Status Board</h3>
-            <div class="small">Your “campaign turn” notes. These persist in localStorage.</div>
+            <div class="small">This is what the Viewer page shows (projector feed). Status + notes persist locally.</div>
             <div class="history" id="statusBoard"></div>
           </div>
 
@@ -414,18 +399,28 @@
 <script>
 (() => {
   const DECK_URL = "./briefing_deck.json";
+
   const LS = {
     seen: "crusadeIntel_seen_v1",
     history: "crusadeIntel_history_v1",
-    statuses: "crusadeIntel_statuses_v1" // { [cardId]: { status, note, updatedAt } }
+    statuses: "crusadeIntel_statuses_v1", // { [cardId]: { status, note, updatedAt } }
+
+    // Published program feed for viewer.html
+    viewerState: "crusadeIntel_viewer_state_v1",
+    viewerSubtitle: "crusadeIntel_viewer_subtitle_v1"
   };
+
+  const CHANNEL_NAME = "crusadeIntel_channel_v1";
+  const bc = ("BroadcastChannel" in window) ? new BroadcastChannel(CHANNEL_NAME) : null;
 
   const els = {
     count: document.getElementById("count"),
     category: document.getElementById("category"),
     mode: document.getElementById("mode"),
+    viewerSubtitle: document.getElementById("viewerSubtitle"),
     drawBtn: document.getElementById("drawBtn"),
     copyBtn: document.getElementById("copyBtn"),
+    pushBtn: document.getElementById("pushBtn"),
     resetBtn: document.getElementById("resetBtn"),
     drawArea: document.getElementById("drawArea"),
     deckStatus: document.getElementById("deckStatus"),
@@ -435,6 +430,8 @@
   };
 
   let DECK = null;
+  let lastDraw = [];
+  let focusCardId = "";
 
   const nowStamp = () => new Date().toLocaleString();
 
@@ -465,9 +462,17 @@
     return "low";
   }
 
+  function statusLabel(status){
+    switch(status){
+      case "ongoing": return "Ongoing";
+      case "resolved": return "Resolved";
+      case "false": return "Misinformation";
+      default: return "Unmarked";
+    }
+  }
+
   function ensureCategoryOptions(cards){
     const cats = Array.from(new Set(cards.map(c => c.category))).sort();
-    // wipe existing options except first
     while(els.category.options.length > 1) els.category.remove(1);
     for(const cat of cats){
       const opt = document.createElement("option");
@@ -494,19 +499,15 @@
       return out;
     }
 
-    // unique mode: avoid repeats until exhausted
     let seen = new Set(loadLS(LS.seen, []));
     let unseen = pool.filter(c => !seen.has(c.id));
 
-    // if exhausted (for current filter), reset for that pool
     if(unseen.length < count){
-      // Only reset seen for cards in the current eligible pool (so other categories keep their cycle)
       for(const c of pool){ seen.delete(c.id); }
       unseen = pool.slice();
       toast("Deck cycle refreshed for current filter.");
     }
 
-    // draw without replacement from unseen
     const out = [];
     const bag = unseen.slice();
     for(let i=0;i<count && bag.length;i++){
@@ -514,7 +515,6 @@
       out.push(bag.splice(idx,1)[0]);
     }
 
-    // mark drawn as seen
     for(const c of out) seen.add(c.id);
     saveLS(LS.seen, Array.from(seen));
     return out;
@@ -523,20 +523,11 @@
   function renderDraw(cards){
     els.drawArea.innerHTML = "";
     if(!cards.length){
-      els.drawArea.innerHTML = `<div class="card"><div class="small">No cards available for the current filter.</div></div>`;
+      els.drawArea.innerHTML = `<div class="card"><div class="small">No cards drawn yet.</div></div>`;
       return;
     }
     for(const c of cards){
       els.drawArea.appendChild(makeCardEl(c));
-    }
-  }
-
-  function statusLabel(status){
-    switch(status){
-      case "ongoing": return "Ongoing";
-      case "resolved": return "Resolved";
-      case "false": return "Misinformation";
-      default: return "Unmarked";
     }
   }
 
@@ -553,9 +544,9 @@
         <div>
           <div class="badge">
             <span class="dot ${confidenceDotClass(c.confidence)}"></span>
-            <span>${c.category}</span>
+            <span>${escapeHtml(c.category)}</span>
             <span style="opacity:.65">•</span>
-            <span>${(c.confidence || "Low")} Confidence</span>
+            <span>${escapeHtml((c.confidence || "Low"))} Confidence</span>
           </div>
           <h3 class="ctitle">${escapeHtml(c.title)}</h3>
         </div>
@@ -575,6 +566,7 @@
           <button data-act="resolved">Resolved</button>
           <button data-act="false">Misinformation</button>
           <button data-act="note">Add Note</button>
+          <button data-act="focus">Focus</button>
         </div>
       </div>
     `;
@@ -584,8 +576,11 @@
         const act = btn.getAttribute("data-act");
         if(act === "pin"){
           setStatus(c.id, "ongoing", note || "");
-          toast("Pinned as Ongoing.");
+          focusCardId = c.id;
+          publishViewerState();
+          toast("Pinned as Ongoing + focused on Viewer.");
           renderStatusBoard();
+          renderDraw(lastDraw);
           return;
         }
         if(act === "note"){
@@ -594,14 +589,23 @@
           if(next === null) return;
           const st = loadLS(LS.statuses, {})[c.id]?.status || "";
           setStatus(c.id, st, next.trim());
-          toast("Note saved.");
+          publishViewerState();
+          toast("Note saved + pushed to Viewer.");
           renderDraw(lastDraw);
           renderStatusBoard();
           return;
         }
+        if(act === "focus"){
+          focusCardId = c.id;
+          publishViewerState();
+          toast("Focused on Viewer.");
+          return;
+        }
 
         setStatus(c.id, act, note);
-        toast(`Marked: ${statusLabel(act)}.`);
+        focusCardId = c.id;
+        publishViewerState();
+        toast(`Marked: ${statusLabel(act)} + focused on Viewer.`);
         renderDraw(lastDraw);
         renderStatusBoard();
       });
@@ -614,7 +618,7 @@
     const statuses = loadLS(LS.statuses, {});
     statuses[cardId] = {
       status: status || "",
-      note: (note || "").slice(0, 120),
+      note: (note || "").slice(0, 160),
       updatedAt: Date.now()
     };
     saveLS(LS.statuses, statuses);
@@ -655,24 +659,26 @@
           ${escapeHtml(card.category)}
           ${it.note ? `<div style="margin-top:6px; color: var(--muted);">${escapeHtml(it.note)}</div>` : ``}
           <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-            <button data-sb="focus">Focus</button>
+            <button data-sb="focus">Focus (Viewer)</button>
             <button data-sb="clear">Clear</button>
           </div>
         </div>
       `;
 
       el.querySelector('[data-sb="focus"]').addEventListener("click", () => {
-        // draw the single card as a "focus" view
+        focusCardId = card.id;
         lastDraw = [card];
         renderDraw(lastDraw);
+        publishViewerState();
         window.scrollTo({ top: 0, behavior: "smooth" });
-        toast("Focused card.");
+        toast("Focused on Viewer.");
       });
 
       el.querySelector('[data-sb="clear"]').addEventListener("click", () => {
         clearStatus(it.id);
+        publishViewerState();
         renderStatusBoard();
-        toast("Cleared status.");
+        toast("Cleared status + pushed to Viewer.");
       });
 
       els.statusBoard.appendChild(el);
@@ -737,9 +743,48 @@
       .replaceAll("'","&#039;");
   }
 
-  let lastDraw = [];
+  function computePinnedForViewer(){
+    const statuses = loadLS(LS.statuses, {});
+    const entries = Object.entries(statuses)
+      .map(([card_id, v]) => ({ card_id, ...v }))
+      .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+
+    // only include things that are actually "marked" (pinning creates ongoing)
+    return entries.map(e => ({
+      card_id: e.card_id,
+      status: e.status || "ongoing",
+      note: e.note || ""
+    }));
+  }
+
+  function publishViewerState(){
+    const subtitle = els.viewerSubtitle.value.trim();
+    localStorage.setItem(LS.viewerSubtitle, subtitle);
+
+    const state = {
+      updatedAt: Date.now(),
+      subtitle,
+      pinned: computePinnedForViewer(),
+      focusCardId: focusCardId || ""
+    };
+
+    saveLS(LS.viewerState, state);
+    if(bc){
+      bc.postMessage({ type: "viewer_state", state });
+    }
+  }
 
   async function init(){
+    // restore viewer subtitle
+    try{
+      const savedSub = localStorage.getItem(LS.viewerSubtitle);
+      if(savedSub) els.viewerSubtitle.value = savedSub;
+    }catch(e){}
+
+    els.viewerSubtitle.addEventListener("input", () => {
+      publishViewerState();
+    });
+
     try{
       const res = await fetch(DECK_URL, { cache: "no-store" });
       if(!res.ok) throw new Error(`Failed to load ${DECK_URL} (${res.status})`);
@@ -749,6 +794,7 @@
       els.deckStatus.textContent = deckStatusLine();
       renderHistory();
       renderStatusBoard();
+      publishViewerState(); // publish whatever you currently have
 
       els.category.addEventListener("change", () => {
         els.deckStatus.textContent = deckStatusLine();
@@ -788,31 +834,37 @@
           toast("Briefing copied to clipboard.");
         }catch(e){
           toast("Clipboard blocked. Select + copy manually.");
-          // fallback: prompt
           prompt("Copy briefing:", txt);
         }
       });
 
+      els.pushBtn.addEventListener("click", () => {
+        publishViewerState();
+        toast("Pushed to Viewer.");
+      });
+
       els.resetBtn.addEventListener("click", () => {
-        if(!confirm("Reset local state? This clears seen-cycle, history, and statuses for this device/browser.")) return;
+        if(!confirm("Reset local state? This clears seen-cycle, history, and statuses for this browser.")) return;
         localStorage.removeItem(LS.seen);
         localStorage.removeItem(LS.history);
         localStorage.removeItem(LS.statuses);
+        localStorage.removeItem(LS.viewerState);
         lastDraw = [];
+        focusCardId = "";
         els.drawArea.innerHTML = "";
         renderHistory();
         renderStatusBoard();
         els.deckStatus.textContent = deckStatusLine();
+        publishViewerState();
         toast("Local state reset.");
       });
 
-      // tiny hotkeys
       window.addEventListener("keydown", (e) => {
         if(e.key.toLowerCase() === "d") els.drawBtn.click();
         if(e.key.toLowerCase() === "c") els.copyBtn.click();
       });
 
-      toast("Deck ready. Press D to draw.");
+      toast("GM ready. Open viewer.html on the projector.");
     }catch(err){
       els.deckStatus.textContent = "Failed to load deck. Check that briefing_deck.json is in the same folder as index.html.";
       els.drawArea.innerHTML = `
@@ -821,7 +873,7 @@
             ${escapeHtml(err.message || String(err))}
           </div>
           <div class="small" style="margin-top:10px;">
-            GitHub Pages note: JSON fetch requires running via a server (Pages is fine). Opening index.html directly from your file system may block fetch.
+            GitHub Pages note: JSON fetch requires running via a server (Pages is fine).
           </div>
         </div>
       `;
